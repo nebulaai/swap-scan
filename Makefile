@@ -1,8 +1,8 @@
-PROJECT_NAME=payment-bridge
+PROJECT_NAME=swan_scan
 PKG := "$(PROJECT_NAME)"
 PKG_LIST := $(shell go list ${PKG}/... | grep -v /vendor/)
 GO_FILES := $(shell find . -name '*.go' | grep -v /vendor/ | grep -v _test.go)
-BINARY_NAME=payment-bridge
+BINARY_NAME=swan_scan
 
 GOCMD=go
 GOBUILD=$(GOCMD) build
@@ -43,12 +43,10 @@ endif
 build: ## Build the binary file
 	@go mod download
 	@go mod tidy
-	@go build -o build/payment-bridge main/payment-bridge.go
+	@go build -o build/swan_scan main/swan_scan.go
 	@mkdir -p ./build/config
-	@mkdir -p ./build/on-chain/contracts/abi
 	@cp ./config/config.toml ./build/config/config.toml
 	@cp .env ./build/.env
-	@cp ./on-chain/contracts/abi/SwanPayment.json ./build/on-chain/contracts/abi/SwanPayment.json
 	@echo "Done building."
 
 clean: ## Remove previous build
