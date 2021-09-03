@@ -6,14 +6,9 @@ import (
 	cors "github.com/itsjamie/gin-cors"
 	"github.com/joho/godotenv"
 	"os"
-	"payment-bridge/blockchain/browsersync/bsc"
-	"payment-bridge/blockchain/browsersync/goerli"
 	"payment-bridge/blockchain/browsersync/nbai"
-	"payment-bridge/blockchain/browsersync/polygon"
 	"payment-bridge/blockchain/initclient/bscclient"
-	"payment-bridge/blockchain/initclient/goerliclient"
 	"payment-bridge/blockchain/initclient/nbaiclient"
-	"payment-bridge/blockchain/initclient/polygonclient"
 	"payment-bridge/blockchain/schedule"
 	"payment-bridge/common/constants"
 	"payment-bridge/config"
@@ -34,12 +29,6 @@ func main() {
 	go schedule.RedoMappingSchedule()
 
 	go nbai.NbaiBlockBrowserSyncAndEventLogsSync()
-
-	go polygon.PolygonBlockBrowserSyncAndEventLogsSync()
-
-	go goerli.GoerliBlockBrowserSyncAndEventLogsSync()
-
-	go bsc.BscBlockBrowserSyncAndEventLogsSync()
 
 	defer func() {
 		err := db.Close()
@@ -71,8 +60,6 @@ func main() {
 
 func initMethod() string {
 	config.InitConfig("")
-	goerliclient.ClientInit()
-	polygonclient.ClientInit()
 	nbaiclient.ClientInit()
 	bscclient.ClientInit()
 	return ""
