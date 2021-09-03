@@ -8,14 +8,12 @@ import (
 )
 
 type Configuration struct {
-	Port               string
-	Database           database
-	GoerliMainnetNode  GoerliMainnetNode
-	PolygonMainnetNode PolygonMainnetNode
-	NbaiMainnetNode    NbaiMainnetNode
-	BscMainnetNode     BscMainnetNode
-	ScheduleRule       ScheduleRule
-	Dev                bool
+	Port            string
+	Database        database
+	NbaiMainnetNode NbaiMainnetNode
+	BscMainnetNode  BscMainnetNode
+	ScheduleRule    ScheduleRule
+	Dev             bool
 }
 
 type database struct {
@@ -25,24 +23,6 @@ type database struct {
 	DbPort       string
 	DbSchemaName string
 	DbArgs       string
-}
-
-type GoerliMainnetNode struct {
-	RpcUrl                    string
-	PaymentContractAddress    string
-	ContractFunctionSignature string
-	ScanStep                  int64
-	StartFromBlockNo          int64
-	CycleTimeInterval         time.Duration
-}
-
-type PolygonMainnetNode struct {
-	RpcUrl                    string
-	PaymentContractAddress    string
-	ContractFunctionSignature string
-	ScanStep                  int64
-	StartFromBlockNo          int64
-	CycleTimeInterval         time.Duration
 }
 
 type NbaiMainnetNode struct {
@@ -86,20 +66,9 @@ func InitConfig(configFile string) {
 	}
 }
 
-func (c *Configuration) GetGoerliMainnetNode() string {
-	return c.GoerliMainnetNode.RpcUrl
-}
-
 func GetConfig() Configuration {
 	if config == nil {
 		InitConfig("")
-	}
-	return *config
-}
-
-func GetConfigFromMainParams(configFile string) Configuration {
-	if config == nil {
-		InitConfig(configFile)
 	}
 	return *config
 }
@@ -113,18 +82,6 @@ func requiredFieldsAreGiven(metaData toml.MetaData) bool {
 		{"DataBase", "dbSchemaName"},
 		{"DataBase", "dbUsername"},
 		{"DataBase", "dbPwd"},
-
-		{"GoerliMainnetNode", "rpcUrl"},
-		{"GoerliMainnetNode", "paymentContractAddress"},
-		{"GoerliMainnetNode", "contractFunctionSignature"},
-		{"GoerliMainnetNode", "scanStep"},
-		{"GoerliMainnetNode", "cycleTimeInterval"},
-
-		{"PolygonMainnetNode", "rpcUrl"},
-		{"PolygonMainnetNode", "paymentContractAddress"},
-		{"PolygonMainnetNode", "contractFunctionSignature"},
-		{"PolygonMainnetNode", "scanStep"},
-		{"PolygonMainnetNode", "cycleTimeInterval"},
 
 		{"NbaiMainnetNode", "rpcUrl"},
 		{"NbaiMainnetNode", "paymentContractAddress"},
