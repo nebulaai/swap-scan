@@ -19,7 +19,7 @@ type Configuration struct {
 type database struct {
 	DbHost       string `toml:"db_host"`
 	DbPort       string `toml:"db_port"`
-	DbSchemaName string `toml:"db_schemaName"`
+	DbSchemaName string `toml:"db_schema_name"`
 	DbUsername   string `toml:"db_username"`
 	DbPwd        string `toml:"db_pwd"`
 	DbArgs       string `toml:"db_args"`
@@ -79,7 +79,7 @@ func requiredFieldsAreGiven(metaData toml.MetaData) bool {
 
 		{"data_base", "db_host"},
 		{"data_base", "db_port"},
-		{"data_base", "db_schemaName"},
+		{"data_base", "db_schema_name"},
 		{"data_base", "db_username"},
 		{"data_base", "db_pwd"},
 

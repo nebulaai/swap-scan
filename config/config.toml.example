@@ -1,38 +1,37 @@
 port="8888"
 dev = true
 
+[data_base]
+db_host="localhost"
+db_port="3306"
+db_schema_name="swan_scan"
+db_username="root"
+db_pwd="123456"
+db_args="charset=utf8mb4&parseTime=True&loc=Local"
 
-[DataBase]
-dbHost="localhost"
-dbPort="3306"
-dbSchemaName="swan_scan"
-dbUsername="root"
-dbPwd="123456"
-dbArgs="charset=utf8mb4&parseTime=True&loc=Local"
-
-[NbaiMainnetNode]
-rpcUrl = "https://api.nbai.io/"
-paymentContractAddress = "0x60a43A2d57E79938b8dF8652d86D1b3A2132CBcE"
-contractFunctionSignature = "0xa8133e3dab1689781429189302ba4b39d9a2ba21e28bdc487c2339c798393900"
-scanStep = 2000
-startFromBlockNo = 6925072
-cycleTimeInterval = 10 #unit:second
+[nbai_mainnet_node]
+rpc_url = "https://api.nbai.io/"
+payment_contract_address = "0x60a43A2d57E79938b8dF8652d86D1b3A2132CBcE"
+contract_function_signature = "0xa8133e3dab1689781429189302ba4b39d9a2ba21e28bdc487c2339c798393900"
+scan_step = 2000
+start_from_blockNo = 6925072
+cycle_time_interval = 10 #unit:second
 
 
-[BscMainnetNode]
-rpcUrl = "https://data-seed-prebsc-1-s1.binance.org:8545/"
-#rpcUrl = "http://192.168.88.121:8545/"
-#rpcUrl = "https://bsc-dataseed.binance.org/"
-bscAdminWallet = "0xc4fcaAdCb0b00a9501e56215c37B10fAF9e79c0a"
+[bsc_mainnet_node]
+rpc_url = "https://data-seed-prebsc-1-s1.binance.org:8545/"
+#rpc_url = "http://192.168.88.121:8545/"
+#rpc_url = "https://bsc-dataseed.binance.org/"
+bsc_admin_wallet = "0xc4fcaAdCb0b00a9501e56215c37B10fAF9e79c0a"
 #bscAdminWallet = "0x05856015d07F3E24936B7D20cB3CcfCa3D34B41d"
-childChainManageContractAddress = "0xa1A58C82bA4a0D8e856D8fad76bB72b04fd9736b"
-gasLimit = 800000
-chainID = 97  # mainnet 56 ;test net 97
-paymentContractAddress = "0x4e2eB289A6e22eb6BBB78d4379aCd27c6BD87001"
-contractFunctionSignature = "0x88e2ea3170ebb5d73f832e672e27a855b3daf0b2264ac6c09b04009dc151509e"
-scanStep = 2000
-startFromBlockNo = 12050113
-cycleTimeInterval = 10 #unit:second
+child_chain_manage_contract_address = "0xa1A58C82bA4a0D8e856D8fad76bB72b04fd9736b"
+gas_limit = 800000
+chain_ID = 97  # mainnet 56 ;test net 97
+payment_contract_address = "0x4e2eB289A6e22eb6BBB78d4379aCd27c6BD87001"
+contract_function_signature = "0x88e2ea3170ebb5d73f832e672e27a855b3daf0b2264ac6c09b04009dc151509e"
+scan_step = 2000
+start_from_blockNo = 12050113
+cycle_time_interval = 10 #unit:second
 
-[ScheduleRule]
-nbai2BscMappingRedoRule = "0 */3 * * * ?"  #every minute
+[schedule_rule]
+nbai2bsc_mapping_redoRule = "0 */3 * * * ?"  #every minute
