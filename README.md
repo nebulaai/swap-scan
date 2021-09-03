@@ -1,5 +1,5 @@
 # Swan_scan
-Map the user's nbai token to the bsc chain
+Swap the user's nbai token to the bsc chain
 
 ## Mapping process
 The user sends a certain number of nbai tokens to the transfer contract deployed on the nbai blockchain <tr>
