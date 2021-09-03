@@ -8,47 +8,47 @@ import (
 )
 
 type Configuration struct {
-	Port            string
-	Database        database
-	NbaiMainnetNode NbaiMainnetNode
-	BscMainnetNode  BscMainnetNode
-	ScheduleRule    ScheduleRule
-	Dev             bool
+	Port            string          `toml:"port"`
+	Dev             bool            `toml:"dev"`
+	Database        database        `toml:"data_base"`
+	NbaiMainnetNode NbaiMainnetNode `toml:"nbai_mainnet_node"`
+	BscMainnetNode  BscMainnetNode  `toml:"bsc_mainnet_node"`
+	ScheduleRule    ScheduleRule    `toml:"schedule_rule"`
 }
 
 type database struct {
-	DbUsername   string
-	DbPwd        string
-	DbHost       string
-	DbPort       string
-	DbSchemaName string
-	DbArgs       string
+	DbHost       string `toml:"db_host"`
+	DbPort       string `toml:"db_port"`
+	DbSchemaName string `toml:"db_schemaName"`
+	DbUsername   string `toml:"db_username"`
+	DbPwd        string `toml:"db_pwd"`
+	DbArgs       string `toml:"db_args"`
 }
 
 type NbaiMainnetNode struct {
-	RpcUrl                    string
-	PaymentContractAddress    string
-	ContractFunctionSignature string
-	ScanStep                  int64
-	StartFromBlockNo          int64
-	CycleTimeInterval         time.Duration
+	RpcUrl                    string        `toml:"rpc_url"`
+	PaymentContractAddress    string        `toml:"payment_contract_address"`
+	ContractFunctionSignature string        `toml:"contract_function_signature"`
+	ScanStep                  int64         `toml:"scan_step"`
+	StartFromBlockNo          int64         `toml:"start_from_blockNo"`
+	CycleTimeInterval         time.Duration `toml:"cycle_time_interval"`
 }
 
 type BscMainnetNode struct {
-	RpcUrl                          string
-	BscAdminWallet                  string
-	ChildChainManageContractAddress string
-	GasLimit                        uint64
-	ChainID                         int64
-	PaymentContractAddress          string
-	ContractFunctionSignature       string
-	ScanStep                        int64
-	StartFromBlockNo                int64
-	CycleTimeInterval               time.Duration
+	RpcUrl                          string        `toml:"rpc_url"`
+	BscAdminWallet                  string        `toml:"bsc_admin_wallet"`
+	ChildChainManageContractAddress string        `toml:"child_chain_manage_contract_address"`
+	GasLimit                        uint64        `toml:"gas_limit"`
+	ChainID                         int64         `toml:"chain_ID"`
+	PaymentContractAddress          string        `toml:"payment_contract_address"`
+	ContractFunctionSignature       string        `toml:"contract_function_signature"`
+	ScanStep                        int64         `toml:"scan_step"`
+	StartFromBlockNo                int64         `toml:"start_from_blockNo"`
+	CycleTimeInterval               time.Duration `toml:"cycle_time_interval"`
 }
 
 type ScheduleRule struct {
-	Nbai2BscMappingRedoRule string
+	Nbai2BscMappingRedoRule string `toml:"nbai2bsc_mapping_redoRule"`
 }
 
 var config *Configuration
@@ -77,25 +77,26 @@ func requiredFieldsAreGiven(metaData toml.MetaData) bool {
 	requiredFields := [][]string{
 		{"port"},
 
-		{"DataBase", "dbHost"},
-		{"DataBase", "dbPort"},
-		{"DataBase", "dbSchemaName"},
-		{"DataBase", "dbUsername"},
-		{"DataBase", "dbPwd"},
+		{"data_base", "db_host"},
+		{"data_base", "db_port"},
+		{"data_base", "db_schemaName"},
+		{"data_base", "db_username"},
+		{"data_base", "db_pwd"},
 
-		{"NbaiMainnetNode", "rpcUrl"},
-		{"NbaiMainnetNode", "paymentContractAddress"},
-		{"NbaiMainnetNode", "contractFunctionSignature"},
-		{"NbaiMainnetNode", "scanStep"},
-		{"NbaiMainnetNode", "cycleTimeInterval"},
+		{"nbai_mainnet_node", "rpc_url"},
+		{"nbai_mainnet_node", "payment_contract_address"},
+		{"nbai_mainnet_node", "contract_function_signature"},
+		{"nbai_mainnet_node", "scan_step"},
+		{"nbai_mainnet_node", "cycle_time_interval"},
 
-		{"BscMainnetNode", "rpcUrl"},
-		{"BscMainnetNode", "bscAdminWallet"},
-		{"BscMainnetNode", "childChainManageContractAddress"},
-		{"BscMainnetNode", "gasLimit"},
-		{"BscMainnetNode", "chainID"},
+		{"bsc_mainnet_node", "rpc_url"},
+		{"bsc_mainnet_node", "payment_contract_address"},
+		{"bsc_mainnet_node", "child_chain_manage_contract_address"},
+		{"bsc_mainnet_node", "contract_function_signature"},
+		{"bsc_mainnet_node", "gas_limit"},
+		{"bsc_mainnet_node", "chain_ID"},
 
-		{"ScheduleRule", "nbai2BscMappingRedoRule"},
+		{"schedule_rule", "nbai2bsc_mapping_redoRule"},
 	}
 
 	for _, v := range requiredFields {

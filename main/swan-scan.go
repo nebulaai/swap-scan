@@ -26,6 +26,9 @@ func main() {
 
 	initMethod()
 
+	conf := config.GetConfig()
+	fmt.Println(conf)
+
 	go schedule.RedoMappingSchedule()
 
 	go nbai.NbaiBlockBrowserSyncAndEventLogsSync()
