@@ -1,8 +1,8 @@
-PROJECT_NAME=swan_scan
+PROJECT_NAME=swan-scan
 PKG := "$(PROJECT_NAME)"
 PKG_LIST := $(shell go list ${PKG}/... | grep -v /vendor/)
 GO_FILES := $(shell find . -name '*.go' | grep -v /vendor/ | grep -v _test.go)
-BINARY_NAME=swan_scan
+BINARY_NAME=swan-scan
 
 GOCMD=go
 GOBUILD=$(GOCMD) build
@@ -43,7 +43,7 @@ endif
 build: ## Build the binary file
 	@go mod download
 	@go mod tidy
-	@go build -o build/swan_scan main/swan_scan.go
+	@go build -o build/swan-scan main/swan-scan.go
 	@mkdir -p ./build/config
 	@cp ./config/config.toml ./build/config/config.toml
 	@cp .env ./build/.env
