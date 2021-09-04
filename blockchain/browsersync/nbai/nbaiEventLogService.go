@@ -2,7 +2,6 @@ package nbai
 
 import (
 	"context"
-	"fmt"
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
@@ -75,10 +74,6 @@ func ScanNbaiEventFromChainAndSaveEventLogData(blockNoFrom, blockNoTo int64) err
 				continue
 			}
 			if len(eventList) <= 0 {
-				fmt.Println(vLog.BlockHash.Hex())
-				fmt.Println(vLog.BlockNumber)
-				fmt.Println(vLog.TxHash.Hex())
-
 				receiveMap := map[string]interface{}{}
 				err = paymentAbiString.UnpackIntoMap(receiveMap, "StateSynced", vLog.Data)
 				if err != nil {

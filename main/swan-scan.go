@@ -5,7 +5,6 @@ import (
 	"github.com/gin-gonic/gin"
 	cors "github.com/itsjamie/gin-cors"
 	"github.com/joho/godotenv"
-	"os"
 	"payment-bridge/blockchain/browsersync/nbai"
 	"payment-bridge/blockchain/initclient/bscclient"
 	"payment-bridge/blockchain/initclient/nbaiclient"
@@ -73,5 +72,4 @@ func LoadEnv() {
 	if err != nil {
 		logs.GetLogger().Error(err)
 	}
-	fmt.Println("name: ", os.Getenv("privateKey"))
 }
