@@ -1,6 +1,10 @@
 package utils
 
 import (
+	"context"
+	"github.com/ethereum/go-ethereum"
+	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/ethclient"
 	"io/ioutil"
 	"math/big"
 	"os"
@@ -36,4 +40,20 @@ func ReadContractAbiJsonFile(aptpath string) (string, error) {
 func GetRewardPerBlock() *big.Int {
 	rewardBig, _ := new(big.Int).SetString("35000000000000000000", 10) // the unit is wei
 	return rewardBig
+}
+
+func CheckTx(client *ethclient.Client, tx *types.Transaction) (*types.Receipt, error) {
+retry:
+	rp, err := client.TransactionReceipt(context.Background(), tx.Hash())
+	if err != nil {
+		if err == ethereum.NotFound {
+			logs.GetLogger().Error("tx %v not found, check it later", tx.Hash().String())
+			time.Sleep(1 * time.Second)
+			goto retry
+		} else {
+			logs.GetLogger().Error("TransactionReceipt fail: %s", err)
+			return nil, err
+		}
+	}
+	return rp, nil
 }

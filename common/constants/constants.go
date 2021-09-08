@@ -22,4 +22,5 @@ const (
 
 	TRANSACTION_STATUS_SUCCESS = "success"
 	TRANSACTION_STATUS_FAIL    = "fail"
+	RANSACTION_STATUS_PENDING  = "pending"
 )

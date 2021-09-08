@@ -11,9 +11,14 @@ type ChildChainTransaction struct {
 	TxHashInNbai string `json:"tx_hash_in_nbai""`
 	Status       string `json:"status"`
 	BlockNo      uint64 `json:"block_no"` //in nbai
-	RedoTimes    int8   `json:"redo_times"`
+	FromAddress  string `json:"from_address"`
+	ToAddress    string `json:"to_address"`
+	GasFeeUsed   string `json:"gas_fee_used"`
+	Quantity     string `json:"quantity"`
+	BlockNoBsc   uint64 `json:"block_no_bsc"`
 	CreateAt     string `json:"create_at"`
 	UpdateAt     string `json:"create_at"`
+	RedoTimes    int8   `json:"redo_times"`
 }
 
 // FindChildChainTransaction (&ChildChainTransaction{Id: "0xadeaCC802D0f2DFd31bE4Fa7434F15782Fd720ac"},"id desc","10","0")
