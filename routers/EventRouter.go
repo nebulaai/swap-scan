@@ -3,10 +3,10 @@ package routers
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
-	common "payment-bridge/common"
-	"payment-bridge/common/constants"
-	"payment-bridge/logs"
-	"payment-bridge/models"
+	common "swap-scan/common"
+	"swap-scan/common/constants"
+	"swap-scan/logs"
+	"swap-scan/models"
 )
 
 func EventLogManager(router *gin.RouterGroup) {

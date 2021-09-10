@@ -2,8 +2,8 @@ package bscclient
 
 import (
 	"github.com/ethereum/go-ethereum/ethclient"
-	"payment-bridge/config"
-	"payment-bridge/logs"
+	"swap-scan/config"
+	"swap-scan/logs"
 	"time"
 )
 

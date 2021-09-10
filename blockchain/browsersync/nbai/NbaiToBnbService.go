@@ -8,16 +8,16 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 	"math/big"
 	"os"
-	"payment-bridge/blockchain/initclient/bscclient"
-	"payment-bridge/common/constants"
-	"payment-bridge/common/utils"
-	"payment-bridge/config"
-	"payment-bridge/database"
-	"payment-bridge/logs"
-	"payment-bridge/models"
-	"payment-bridge/on-chain/goBind"
 	"strconv"
 	"strings"
+	"swap-scan/blockchain/initclient/bscclient"
+	"swap-scan/common/constants"
+	"swap-scan/common/utils"
+	"swap-scan/config"
+	"swap-scan/database"
+	"swap-scan/logs"
+	"swap-scan/models"
+	"swap-scan/on-chain/goBind"
 )
 
 func ChangeNbaiToBnb(data []byte, txHashInNbai string, blockNo uint64, childChainTractionID int64) error {
@@ -52,6 +52,7 @@ func ChangeNbaiToBnb(data []byte, txHashInNbai string, blockNo uint64, childChai
 	childInstance, _ := goBind.NewChildChainManagerContract(childManagerAddress, client)
 
 	childChainTX := new(models.ChildChainTransaction)
+	childChainTX.Status = constants.TRANSACTION_STATUS_FAIL
 	tx, err := childInstance.OnStateReceive(callOpts, big.NewInt(int64(1)), data)
 	if err != nil {
 		logs.GetLogger().Error(err)
@@ -78,7 +79,9 @@ func ChangeNbaiToBnb(data []byte, txHashInNbai string, blockNo uint64, childChai
 		logs.GetLogger().Error(err)
 	}
 	if txRecept.Status == uint64(1) {
-		childChainTX.Status = constants.HTTP_STATUS_SUCCESS
+		if childChainTX.FromAddress != "" {
+			childChainTX.Status = constants.HTTP_STATUS_SUCCESS
+		}
 		childChainTX.GasFeeUsed = strconv.FormatUint(txRecept.GasUsed, 10)
 	}
 

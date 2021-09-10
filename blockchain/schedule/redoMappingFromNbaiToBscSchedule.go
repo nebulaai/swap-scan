@@ -3,8 +3,8 @@ package schedule
 import (
 	"github.com/robfig/cron"
 	"log"
-	"payment-bridge/config"
-	"payment-bridge/logs"
+	"swap-scan/config"
+	"swap-scan/logs"
 	"time"
 )
 

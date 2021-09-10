@@ -1,4 +1,4 @@
-module payment-bridge
+module swap-scan
 
 go 1.13
 

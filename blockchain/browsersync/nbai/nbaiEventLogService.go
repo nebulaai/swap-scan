@@ -2,27 +2,28 @@ package nbai
 
 import (
 	"context"
+	"fmt"
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"math/big"
-	"payment-bridge/blockchain/initclient/nbaiclient"
-	"payment-bridge/common/utils"
-	"payment-bridge/config"
-	"payment-bridge/database"
-	"payment-bridge/logs"
-	"payment-bridge/models"
-	"payment-bridge/on-chain/goBind"
 	"strconv"
 	"strings"
+	"swap-scan/blockchain/initclient/nbaiclient"
+	"swap-scan/common/utils"
+	"swap-scan/config"
+	"swap-scan/database"
+	"swap-scan/logs"
+	"swap-scan/models"
+	"swap-scan/on-chain/goBind"
 	"time"
 )
 
 /**
  * created on 08/20/21.
  * author: nebula-ai-zhiqiang
- * Copyright defined in payment-bridge/LICENSE
+ * Copyright defined in swap-scan/LICENSE
  */
 
 // EventLogSave Find the event that executed the contract and save to db
@@ -66,7 +67,9 @@ func ScanNbaiEventFromChainAndSaveEventLogData(blockNoFrom, blockNoTo int64) err
 	}
 
 	for _, vLog := range logsInChain {
+		fmt.Println(vLog.Topics[0].Hex())
 		//if log have this contractor function signer
+		fmt.Println(vLog.Topics[0].Hex())
 		if vLog.Topics[0].Hex() == contractFunctionSignature {
 			eventList, err := models.FindEventNbai(&models.EventNbai{TxHash: vLog.TxHash.Hex(), BlockNo: vLog.BlockNumber}, "id desc", "10", "0")
 			if err != nil {
