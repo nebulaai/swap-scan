@@ -1,6 +1,6 @@
 package common
 
-import "payment-bridge/common/constants"
+import "swap-scan/common/constants"
 
 type BasicResponse struct {
 	Status   string      `json:"status"`

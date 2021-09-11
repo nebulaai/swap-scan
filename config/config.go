@@ -35,16 +35,11 @@ type NbaiMainnetNode struct {
 }
 
 type BscMainnetNode struct {
-	RpcUrl                          string        `toml:"rpc_url"`
-	BscAdminWallet                  string        `toml:"bsc_admin_wallet"`
-	ChildChainManageContractAddress string        `toml:"child_chain_manage_contract_address"`
-	GasLimit                        uint64        `toml:"gas_limit"`
-	ChainID                         int64         `toml:"chain_ID"`
-	PaymentContractAddress          string        `toml:"payment_contract_address"`
-	ContractFunctionSignature       string        `toml:"contract_function_signature"`
-	ScanStep                        int64         `toml:"scan_step"`
-	StartFromBlockNo                int64         `toml:"start_from_blockNo"`
-	CycleTimeInterval               time.Duration `toml:"cycle_time_interval"`
+	RpcUrl                          string `toml:"rpc_url"`
+	BscAdminWallet                  string `toml:"bsc_admin_wallet"`
+	ChildChainManageContractAddress string `toml:"child_chain_manage_contract_address"`
+	GasLimit                        uint64 `toml:"gas_limit"`
+	ChainID                         int64  `toml:"chain_ID"`
 }
 
 type ScheduleRule struct {
@@ -90,9 +85,7 @@ func requiredFieldsAreGiven(metaData toml.MetaData) bool {
 		{"nbai_mainnet_node", "cycle_time_interval"},
 
 		{"bsc_mainnet_node", "rpc_url"},
-		{"bsc_mainnet_node", "payment_contract_address"},
 		{"bsc_mainnet_node", "child_chain_manage_contract_address"},
-		{"bsc_mainnet_node", "contract_function_signature"},
 		{"bsc_mainnet_node", "gas_limit"},
 		{"bsc_mainnet_node", "chain_ID"},
 

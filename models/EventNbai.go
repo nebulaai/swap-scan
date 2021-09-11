@@ -1,8 +1,8 @@
 package models
 
 import (
-	"payment-bridge/common/constants"
-	"payment-bridge/database"
+	"swap-scan/common/constants"
+	"swap-scan/database"
 )
 
 type EventNbai struct {

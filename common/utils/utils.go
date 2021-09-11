@@ -8,7 +8,7 @@ import (
 	"io/ioutil"
 	"math/big"
 	"os"
-	"payment-bridge/logs"
+	"swap-scan/logs"
 	"time"
 )
 

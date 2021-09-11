@@ -1,0 +1,34 @@
+port="8888"
+dev = true
+
+
+[data_base]
+db_host="localhost"
+db_port="3306"
+db_schema_name="swan_scan"
+db_username="root"
+db_pwd="123456"
+db_args="charset=utf8mb4&parseTime=True&loc=Local"
+
+[nbai_mainnet_node]
+rpc_url = "https://api.nbai.io/"
+payment_contract_address = "0xF72c727a8Ad004e4fEEeEe73dfA8D63D493373Db"
+contract_function_signature = "0xa8133e3dab1689781429189302ba4b39d9a2ba21e28bdc487c2339c798393900"
+scan_step = 2000
+start_from_blockNo = 7005254
+cycle_time_interval = 10 #unit:second
+
+
+[bsc_mainnet_node]
+rpc_url = "https://data-seed-prebsc-1-s1.binance.org:8545/"
+#rpc_url = "http://192.168.88.121:8545/"
+#rpc_url = "https://bsc-dataseed.binance.org/"
+bsc_admin_wallet = "0xc4fcaAdCb0b00a9501e56215c37B10fAF9e79c0a"
+#bscAdminWallet = "0x05856015d07F3E24936B7D20cB3CcfCa3D34B41d"
+child_chain_manage_contract_address = "0xFdE1bA95e90C394Cd2b08F27dc47977F69c1DB84"
+gas_limit = 800000
+chain_ID = 97  # mainnet 56 ;test net 97
+
+
+[schedule_rule]
+nbai2bsc_mapping_redoRule = "0 */3 * * * ?"  #every minute

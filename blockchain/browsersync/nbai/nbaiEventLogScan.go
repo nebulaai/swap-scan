@@ -2,14 +2,14 @@ package nbai
 
 import (
 	"math/big"
-	"payment-bridge/blockchain/initclient/nbaiclient"
-	"payment-bridge/common/constants"
-	"payment-bridge/common/utils"
-	"payment-bridge/config"
-	"payment-bridge/database"
-	"payment-bridge/logs"
-	models2 "payment-bridge/models"
 	"strconv"
+	"swap-scan/blockchain/initclient/nbaiclient"
+	"swap-scan/common/constants"
+	"swap-scan/common/utils"
+	"swap-scan/config"
+	"swap-scan/database"
+	"swap-scan/logs"
+	models2 "swap-scan/models"
 	"sync"
 	"time"
 )

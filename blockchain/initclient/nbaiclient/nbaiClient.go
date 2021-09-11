@@ -5,13 +5,13 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"math/big"
-	"payment-bridge/logs"
+	"swap-scan/logs"
 )
 
 /**
  * created on 08/20/21.
  * author: nebula-ai-zhiqiang
- * Copyright defined in payment-bridge/LICENSE
+ * Copyright defined in swap-scan/LICENSE
  */
 
 func (conn *ConnSetup) GetBlockNumber() (*big.Int, error) {
