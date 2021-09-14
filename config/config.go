@@ -93,15 +93,20 @@ func requiredFieldsAreGiven(metaData toml.MetaData) bool {
 		{"data_base", "db_pwd"},
 
 		{"nbai_mainnet_node", "rpc_url"},
-		{"nbai_mainnet_node", "payment_contract_address"},
-		{"nbai_mainnet_node", "contract_function_signature"},
-		{"nbai_mainnet_node", "scan_step"},
-		{"nbai_mainnet_node", "cycle_time_interval"},
+		{"nbai_mainnet_node", "chain_ID"},
 
 		{"bsc_mainnet_node", "rpc_url"},
-		{"bsc_mainnet_node", "child_chain_manage_contract_address"},
-		{"bsc_mainnet_node", "gas_limit"},
 		{"bsc_mainnet_node", "chain_ID"},
+
+		{"nbai_to_bsc", "nbai_to_bsc_event_contract_address"},
+		{"nbai_to_bsc", "nbai_to_bsc_event_contract_event_function_signature"},
+		{"nbai_to_bsc", "scan_step"},
+
+		{"bsc_to_nbai", "bsc_to_nbai_event_contract_address"},
+		{"bsc_to_nbai", "bsc_to_nbai_event_contract_event_function_signature"},
+		{"bsc_to_nbai", "start_from_blockNo"},
+		{"bsc_to_nbai", "cycle_time_interval"},
+		{"bsc_to_nbai", "scan_step"},
 
 		{"schedule_rule", "nbai2bsc_mapping_redoRule"},
 	}

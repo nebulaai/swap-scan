@@ -38,9 +38,9 @@ func ScanNbaiEventFromChainAndSaveEventLogData(blockNoFrom, blockNoTo int64) err
 	}
 
 	//SwanPayment contract address
-	contractAddress := common.HexToAddress(config.GetConfig().NbaiMainnetNode.PaymentContractAddress)
+	contractAddress := common.HexToAddress(config.GetConfig().NbaiToBsc.NbaiToBscEventTransferContractAddress)
 	//SwanPayment contract function signature
-	contractFunctionSignature := config.GetConfig().NbaiMainnetNode.ContractFunctionSignature
+	contractFunctionSignature := config.GetConfig().NbaiToBsc.NbaiToBscEventContractEventFunctionSignature
 
 	//test block no. is : 5297224
 	query := ethereum.FilterQuery{
@@ -102,9 +102,9 @@ func ScanNbaiEventFromChainAndSaveEventLogData(blockNoFrom, blockNoTo int64) err
 						event.FromAddress = txMsg.From().Hex()
 					}
 				}
-				quantity := new(big.Int)
+				/*quantity := new(big.Int)
 				quantity.SetBytes(vLog.Data)
-				event.Quantity = quantity.String()
+				event.Quantity = quantity.String()*/
 
 				err = database.SaveOne(event)
 				if err != nil {

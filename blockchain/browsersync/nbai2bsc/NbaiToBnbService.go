@@ -48,7 +48,7 @@ func ChangeNbaiToBnb(data []byte, txHashInNbai string, blockNo uint64, childChai
 	callOpts.GasLimit = config.GetConfig().NbaiToBsc.GasLimit
 	callOpts.Context = context.Background()
 
-	childManagerAddress := common.HexToAddress(config.GetConfig().NbaiToBsc.ChildChainManageContractAddress) //to config：想要调用的合约地址
+	childManagerAddress := common.HexToAddress(config.GetConfig().NbaiToBsc.BscSwapToNbaiContractAddress)
 	childInstance, _ := goBind.NewChildChainManagerContract(childManagerAddress, client)
 
 	childChainTX := new(models.ChildChainTransaction)
