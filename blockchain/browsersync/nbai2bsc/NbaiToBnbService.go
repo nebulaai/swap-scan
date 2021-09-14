@@ -48,7 +48,7 @@ func ChangeNbaiToBnb(data []byte, txHashInNbai string, blockNo uint64, childChai
 	callOpts.GasLimit = config.GetConfig().NbaiToBsc.GasLimit
 	callOpts.Context = context.Background()
 
-	childManagerAddress := common.HexToAddress(config.GetConfig().NbaiToBsc.BscSwapToNbaiContractAddress)
+	childManagerAddress := common.HexToAddress(config.GetConfig().NbaiToBsc.NbaiSwapTobscContractAddress)
 	childInstance, _ := goBind.NewChildChainManagerContract(childManagerAddress, client)
 
 	childChainTX := new(models.ChildChainTransaction)
@@ -77,12 +77,13 @@ func ChangeNbaiToBnb(data []byte, txHashInNbai string, blockNo uint64, childChai
 	txRecept, err := utils.CheckTx(bscclient.WebConn.ConnWeb, tx)
 	if err != nil {
 		logs.GetLogger().Error(err)
-	}
-	if txRecept.Status == uint64(1) {
-		if childChainTX.FromAddress != "" {
-			childChainTX.Status = constants.HTTP_STATUS_SUCCESS
+	} else {
+		if txRecept.Status == uint64(1) {
+			if childChainTX.FromAddress != "" {
+				childChainTX.Status = constants.HTTP_STATUS_SUCCESS
+			}
+			childChainTX.GasFeeUsed = strconv.FormatUint(txRecept.GasUsed, 10)
 		}
-		childChainTX.GasFeeUsed = strconv.FormatUint(txRecept.GasUsed, 10)
 	}
 
 	if len(txRecept.Logs) > 0 {

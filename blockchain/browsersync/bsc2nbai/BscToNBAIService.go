@@ -20,7 +20,7 @@ import (
 	"swap-scan/on-chain/goBind"
 )
 
-func ChangeNbaiToBnb(data []byte, txHashInNbai string, blockNo uint64, childChainTractionID int64) error {
+func swapNbaiFromBscToNbai(data []byte, txHashInNbai string, blockNo uint64, childChainTractionID int64) error {
 	pk := os.Getenv("privateKey")
 	fromAddress := common.HexToAddress(config.GetConfig().BscAdminWallet)
 	client := bscclient.WebConn.ConnWeb
@@ -48,12 +48,15 @@ func ChangeNbaiToBnb(data []byte, txHashInNbai string, blockNo uint64, childChai
 	callOpts.GasLimit = config.GetConfig().NbaiToBsc.GasLimit
 	callOpts.Context = context.Background()
 
-	childManagerAddress := common.HexToAddress(config.GetConfig().BscToNbai.SwapToNbaiContractAddress) //to config：想要调用的合约地址
-	childInstance, _ := goBind.NewChildChainManagerContract(childManagerAddress, client)
+	/*childManagerAddress := common.HexToAddress(config.GetConfig().BscToNbai.BscSwapToNbaiContractAddress)
+	childInstance, _ := goBind.NewChildChainManagerContract(childManagerAddress, client)*/
+
+	rootManagerAddress := common.HexToAddress(config.GetConfig().BscToNbai.BscSwapToNbaiContractAddress)
+	rootInstance, _ := goBind.NewRootChainManagerContract(rootManagerAddress, client)
 
 	childChainTX := new(models.ChildChainTransaction)
 	childChainTX.Status = constants.TRANSACTION_STATUS_FAIL
-	tx, err := childInstance.OnStateReceive(callOpts, big.NewInt(int64(1)), data)
+	tx, err := rootInstance.Exit(callOpts, data)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		childChainTX.Status = constants.TRANSACTION_STATUS_FAIL
@@ -74,24 +77,25 @@ func ChangeNbaiToBnb(data []byte, txHashInNbai string, blockNo uint64, childChai
 			childChainTX.FromAddress = txMsg.From().Hex()
 		}
 	}
-	txRecept, err := utils.CheckTx(bscclient.WebConn.ConnWeb, tx)
+	txRecept, err := utils.CheckTx(client, tx)
 	if err != nil {
 		logs.GetLogger().Error(err)
-	}
-	if txRecept.Status == uint64(1) {
-		if childChainTX.FromAddress != "" {
-			childChainTX.Status = constants.HTTP_STATUS_SUCCESS
+	} else {
+		if txRecept.Status == uint64(1) {
+			if childChainTX.FromAddress != "" {
+				childChainTX.Status = constants.HTTP_STATUS_SUCCESS
+			}
+			childChainTX.GasFeeUsed = strconv.FormatUint(txRecept.GasUsed, 10)
 		}
-		childChainTX.GasFeeUsed = strconv.FormatUint(txRecept.GasUsed, 10)
 	}
+	quantity := new(big.Int)
+	quantity.SetBytes(data)
+	childChainTX.Quantity = quantity.String()
 
 	if len(txRecept.Logs) > 0 {
 		eventLogs := txRecept.Logs
 		/*userWallet := hex.EncodeToString(eventLogs[0].Topics[1].Bytes())
 		childChainTX.UserNbaiWallet = userWallet*/
-		quantity := new(big.Int)
-		quantity.SetBytes(eventLogs[0].Data)
-		childChainTX.Quantity = quantity.String()
 		childChainTX.BlockNoBsc = eventLogs[0].BlockNumber
 	}
 

@@ -44,7 +44,7 @@ type NbaiToBsc struct {
 	ScanStep                                     int64         `toml:"scan_step"`
 	StartFromBlockNo                             int64         `toml:"start_from_blockNo"`
 	CycleTimeInterval                            time.Duration `toml:"cycle_time_interval"`
-	BscSwapToNbaiContractAddress                 string        `toml:"bsc_swap_to_nbai_contract_address"`
+	NbaiSwapTobscContractAddress                 string        `toml:"nbai_swap_to_bsc_contract_address"`
 	GasLimit                                     uint64        `toml:"gas_limit"`
 }
 
@@ -54,6 +54,7 @@ type BscToNbai struct {
 	ScanStep                                     int64         `toml:"scan_step"`
 	BscToNbaiEventContractAddress                string        `toml:"bsc_to_nbai_event_contract_address"` // for scan event
 	BscToNbaiEventContractEventFunctionSignature string        `toml:"bsc_to_nbai_event_contract_event_function_signature"`
+	BscSwapToNbaiContractAddress                 string        `toml:"bsc_swap_to_nbai_contract_address"`
 }
 
 type ScheduleRule struct {

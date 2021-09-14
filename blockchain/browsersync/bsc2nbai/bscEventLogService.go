@@ -30,9 +30,9 @@ func ScanBSCEventFromChainAndSaveEventLogData(blockNoFrom, blockNoTo int64) erro
 	contractAbiInstans, err := abi.JSON(strings.NewReader(childERC20AbiString))*/
 
 	//SwanPayment contract address
-	contractAddress := common.HexToAddress(config.GetConfig().BscToNbai.SwapToNbaiContractAddress)
+	contractAddress := common.HexToAddress(config.GetConfig().BscToNbai.BscToNbaiEventContractAddress)
 	//SwanPayment contract function signature
-	contractFunctionSignature := config.GetConfig().BscToNbai.SwapToNbaiContractEventFunctionSignature
+	contractFunctionSignature := config.GetConfig().BscToNbai.BscToNbaiEventContractEventFunctionSignature
 
 	//test block no. is : 5297224
 	query := ethereum.FilterQuery{
@@ -101,11 +101,11 @@ func ScanBSCEventFromChainAndSaveEventLogData(blockNoFrom, blockNoTo int64) erro
 					logs.GetLogger().Error(err)
 					continue
 				}
-				/*err = ChangeNbaiToBnb(receiveMap["data"].([]byte), vLog.TxHash.Hex(), vLog.BlockNumber, 0)
+				err = swapNbaiFromBscToNbai(vLog.Data, vLog.TxHash.Hex(), vLog.BlockNumber, 0)
 				if err != nil {
 					logs.GetLogger().Error(err)
 					continue
-				}*/
+				}
 			}
 		}
 	}
