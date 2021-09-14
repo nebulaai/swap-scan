@@ -12,11 +12,12 @@ type EventBsc struct {
 	IndexedData     string `json:"indexed_data"`
 	ContractName    string `json:"contract_name"`
 	ContractAddress string `json:"contract_address"`
-	LockedFee       string `json:"locked_fee"`
-	Deadline        string `json:"deadline"`
-	PayloadCid      string `json:"payload_cid"`
+	Quantity        string `json:"quantity"`
+	BytesData       []byte `json:"bytes_data""`
 	BlockNo         uint64 `json:"block_no"`
-	MinerAddress    string `json:"miner_address"`
+	FromAddress     string `json:"from_address"`
+	ToAddress       string `json:"to_address"`
+	CreateAt        string `json:"create_at"`
 }
 
 // FindEvents (&Event{Id: "0xadeaCC802D0f2DFd31bE4Fa7434F15782Fd720ac"},"id desc","10","0")

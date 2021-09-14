@@ -1,4 +1,4 @@
-package nbai
+package bsc2nbai
 
 import (
 	"context"
@@ -22,7 +22,7 @@ import (
 
 func ChangeNbaiToBnb(data []byte, txHashInNbai string, blockNo uint64, childChainTractionID int64) error {
 	pk := os.Getenv("privateKey")
-	fromAddress := common.HexToAddress(config.GetConfig().BscMainnetNode.BscAdminWallet)
+	fromAddress := common.HexToAddress(config.GetConfig().BscAdminWallet)
 	client := bscclient.WebConn.ConnWeb
 	nonce, err := client.PendingNonceAt(context.Background(), fromAddress)
 	if err != nil {
@@ -45,10 +45,10 @@ func ChangeNbaiToBnb(data []byte, txHashInNbai string, blockNo uint64, childChai
 	//callOpts := new(bind.TransactOpts)
 	callOpts.Nonce = big.NewInt(int64(nonce))
 	callOpts.GasPrice = gasPrice
-	callOpts.GasLimit = config.GetConfig().BscMainnetNode.GasLimit
+	callOpts.GasLimit = config.GetConfig().NbaiToBsc.GasLimit
 	callOpts.Context = context.Background()
 
-	childManagerAddress := common.HexToAddress(config.GetConfig().BscMainnetNode.ChildChainManageContractAddress) //to config：想要调用的合约地址
+	childManagerAddress := common.HexToAddress(config.GetConfig().BscToNbai.SwapToNbaiContractAddress) //to config：想要调用的合约地址
 	childInstance, _ := goBind.NewChildChainManagerContract(childManagerAddress, client)
 
 	childChainTX := new(models.ChildChainTransaction)

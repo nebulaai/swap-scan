@@ -1,4 +1,4 @@
-package nbai
+package nbai2bsc
 
 import (
 	"context"
@@ -90,17 +90,34 @@ func ScanNbaiEventFromChainAndSaveEventLogData(blockNoFrom, blockNoTo int64) err
 				event.ContractAddress = contractAddress.String()
 				event.BytesData = receiveMap["data"].([]byte)
 				event.CreateAt = strconv.FormatInt(utils.GetEpochInMillis(), 10)
+				tx, _, err := nbaiclient.WebConn.ConnWeb.TransactionByHash(context.Background(), vLog.TxHash)
+				if err != nil {
+					logs.GetLogger().Error(err)
+				} else {
+					event.ToAddress = tx.To().Hex()
+					txMsg, err := tx.AsMessage(types.NewEIP155Signer(big.NewInt(999)), nil)
+					if err != nil {
+						logs.GetLogger().Error(err)
+					} else {
+						event.FromAddress = txMsg.From().Hex()
+					}
+				}
+				quantity := new(big.Int)
+				quantity.SetBytes(vLog.Data)
+				event.Quantity = quantity.String()
 
 				err = database.SaveOne(event)
 				if err != nil {
 					logs.GetLogger().Error(err)
 					continue
 				}
-				err = ChangeNbaiToBnb(receiveMap["data"].([]byte), vLog.TxHash.Hex(), vLog.BlockNumber, 0)
+				logs.GetLogger().Info("*************************nbai to bsc swaping start************************** ")
+				/*err = ChangeNbaiToBnb(receiveMap["data"].([]byte), vLog.TxHash.Hex(), vLog.BlockNumber, 0)
 				if err != nil {
 					logs.GetLogger().Error(err)
 					continue
-				}
+				}*/
+				logs.GetLogger().Info("*************************nbai to bsc swaping end************************** ")
 			}
 		}
 	}

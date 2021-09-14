@@ -2,6 +2,7 @@ package utils
 
 import (
 	"context"
+	"errors"
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
@@ -43,7 +44,13 @@ func GetRewardPerBlock() *big.Int {
 }
 
 func CheckTx(client *ethclient.Client, tx *types.Transaction) (*types.Receipt, error) {
+	checkTImes := 10
 retry:
+	checkTImes--
+	if checkTImes <= 0 {
+		err := errors.New("check tx status time out! txhash=" + tx.Hash().Hex())
+		return nil, err
+	}
 	rp, err := client.TransactionReceipt(context.Background(), tx.Hash())
 	if err != nil {
 		if err == ethereum.NotFound {

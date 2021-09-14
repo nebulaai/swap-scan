@@ -1,9 +1,9 @@
-package nbai
+package bsc2nbai
 
 import (
 	"math/big"
 	"strconv"
-	"swap-scan/blockchain/initclient/nbaiclient"
+	"swap-scan/blockchain/initclient/bscclient"
 	"swap-scan/common/constants"
 	"swap-scan/common/utils"
 	"swap-scan/config"
@@ -14,7 +14,7 @@ import (
 	"time"
 )
 
-func NbaiBlockBrowserSyncAndEventLogsSync() {
+func BscBlockBrowserSyncAndEventLogsSync() {
 	startScanBlockNo := getStartBlockNo()
 
 	for {
@@ -24,9 +24,9 @@ func NbaiBlockBrowserSyncAndEventLogsSync() {
 		var err error
 		var getBlockFlag bool = true
 		for getBlockFlag {
-			blockNoCurrent, err = nbaiclient.WebConn.GetBlockNumber()
+			blockNoCurrent, err = bscclient.WebConn.GetBlockNumber()
 			if err != nil {
-				nbaiclient.ClientInit()
+				bscclient.ClientInit()
 				logs.GetLogger().Error(err)
 				time.Sleep(5 * time.Second)
 				continue
@@ -37,30 +37,31 @@ func NbaiBlockBrowserSyncAndEventLogsSync() {
 		}
 
 		blockScanRecord := new(models2.BlockScanRecord)
-		whereCondition := "network_type='" + constants.NETWORK_TYPE_NBAI + "'"
+		whereCondition := "network_type='" + constants.NETWORK_TYPE_BSC + "'"
 		blockScanRecordList, err := blockScanRecord.FindLastCurrentBlockNumber(whereCondition)
 		if err != nil {
 			logs.GetLogger().Error(err)
-			startScanBlockNo = config.GetConfig().NbaiMainnetNode.StartFromBlockNo
+			startScanBlockNo = config.GetConfig().BscToNbai.StartFromBlockNo
 		}
 		if len(blockScanRecordList) > 0 {
 			if blockScanRecordList[0].LastCurrentBlockNumber <= blockNoCurrent.Int64() {
 				startScanBlockNo = blockScanRecordList[0].LastCurrentBlockNumber
 			} else {
-				startScanBlockNo = config.GetConfig().NbaiMainnetNode.StartFromBlockNo
+				startScanBlockNo = config.GetConfig().BscToNbai.StartFromBlockNo
 			}
 			blockScanRecord.ID = blockScanRecordList[0].ID
 		}
 
 		for {
 			start := startScanBlockNo
-			end := start + config.GetConfig().NbaiMainnetNode.ScanStep
+			end := start + config.GetConfig().BscToNbai.ScanStep
 			if startScanBlockNo > blockNoCurrent.Int64() {
 				break
 			}
-			err = ScanNbaiEventFromChainAndSaveEventLogData(start, end)
+			err = ScanBSCEventFromChainAndSaveEventLogData(start, end)
 			if err != nil {
 				logs.GetLogger().Error(err)
+				time.Sleep(time.Second * 1)
 				continue
 			}
 
@@ -70,7 +71,7 @@ func NbaiBlockBrowserSyncAndEventLogsSync() {
 				blockScanRecord.LastCurrentBlockNumber = end
 			}
 
-			blockScanRecord.NetworkType = constants.NETWORK_TYPE_NBAI
+			blockScanRecord.NetworkType = constants.NETWORK_TYPE_BSC
 			blockScanRecord.UpdateAt = strconv.FormatInt(utils.GetEpochInMillis(), 10)
 
 			err = database.SaveOne(blockScanRecord)
@@ -88,24 +89,23 @@ func NbaiBlockBrowserSyncAndEventLogsSync() {
 		getBlockFlag = true
 		mutex.Unlock()
 
-		time.Sleep(time.Second * config.GetConfig().NbaiMainnetNode.CycleTimeInterval)
-		logs.GetLogger().Info("-------------------------nbai----------------------------")
+		time.Sleep(time.Second * config.GetConfig().BscToNbai.CycleTimeInterval)
 	}
 }
 
 func getStartBlockNo() int64 {
 	var startScanBlockNo int64 = 1
 
-	if config.GetConfig().NbaiMainnetNode.StartFromBlockNo > 0 {
-		startScanBlockNo = config.GetConfig().NbaiMainnetNode.StartFromBlockNo
+	if config.GetConfig().BscToNbai.StartFromBlockNo > 0 {
+		startScanBlockNo = config.GetConfig().BscToNbai.StartFromBlockNo
 	}
 
 	blockScanRecord := new(models2.BlockScanRecord)
-	whereCondition := "network_type='" + constants.NETWORK_TYPE_NBAI + "'"
+	whereCondition := "network_type='" + constants.NETWORK_TYPE_BSC + "'"
 	blockScanRecordList, err := blockScanRecord.FindLastCurrentBlockNumber(whereCondition)
 	if err != nil {
 		logs.GetLogger().Error(err)
-		startScanBlockNo = config.GetConfig().NbaiMainnetNode.StartFromBlockNo
+		startScanBlockNo = config.GetConfig().BscToNbai.StartFromBlockNo
 	}
 
 	if len(blockScanRecordList) > 0 {

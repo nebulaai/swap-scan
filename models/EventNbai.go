@@ -12,8 +12,10 @@ type EventNbai struct {
 	IndexedData     string `json:"indexed_data"`
 	ContractName    string `json:"contract_name"`
 	ContractAddress string `json:"contract_address"`
-	Address         string `json:"address"`
+	Quantity        string `json:"quantity"`
 	BytesData       []byte `json:"bytes_data""`
+	FromAddress     string `json:"from_address"`
+	ToAddress       string `json:"to_address"`
 	BlockNo         uint64 `json:"block_no"`
 	CreateAt        string `json:"create_at"`
 }
