@@ -3,14 +3,10 @@ package bsc2nbai
 import (
 	"bytes"
 	"context"
-	"encoding/gob"
-	"fmt"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/ethereum/go-ethereum/ethclient"
-	"github.com/ethereum/go-ethereum/params"
 	"math/big"
 	"os"
 	"strconv"
@@ -25,11 +21,11 @@ import (
 	"swap-scan/on-chain/goBind"
 )
 
-func swapNbaiFromBscToNbai(eventLog types.Log, txHashInNbai string, blockNo uint64, childChainTractionID int64) error {
+func swapNbaiFromBscToNbai(eventLog types.Log, blockNo uint64, childChainTractionID int64) error {
 	pk := os.Getenv(constants.PRIVATE_KEY_NAME_FOR_NBAI_ADMIN_WALLET)
-	fromAddress := common.HexToAddress(config.GetConfig().BscAdminWallet)
+	nbaiAdminWalletAddress := common.HexToAddress(config.GetConfig().NbaiAdminWallet)
 	client := nbaiclient.WebConn.ConnWeb
-	nonce, err := client.PendingNonceAt(context.Background(), fromAddress)
+	nonce, err := client.PendingNonceAt(context.Background(), nbaiAdminWalletAddress)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return err
@@ -57,7 +53,7 @@ func swapNbaiFromBscToNbai(eventLog types.Log, txHashInNbai string, blockNo uint
 	rootManagerAddress := common.HexToAddress(config.GetConfig().BscToNbai.BscSwapToNbaiContractAddress)
 	rootInstance, _ := goBind.NewRootChainManagerContract(rootManagerAddress, client)
 
-	childChainTX := new(models.ChildChainTransaction)
+	childChainTX := new(models.SwapCoinTransaction)
 	childChainTX.Status = constants.TRANSACTION_STATUS_FAIL
 
 	var buff bytes.Buffer
@@ -70,10 +66,10 @@ func swapNbaiFromBscToNbai(eventLog types.Log, txHashInNbai string, blockNo uint
 	if err != nil {
 		logs.GetLogger().Error(err)
 		childChainTX.Status = constants.TRANSACTION_STATUS_FAIL
-		childChainTX.TxHashInBsc = ""
+		childChainTX.TxHashTo = ""
 		childChainTX.Status = constants.TRANSACTION_STATUS_FAIL
 	} else {
-		childChainTX.TxHashInBsc = tx.Hash().Hex()
+		childChainTX.TxHashTo = tx.Hash().Hex()
 		childChainTX.Status = constants.TRANSACTION_STATUS_SUCCESS
 	}
 
@@ -112,7 +108,13 @@ func swapNbaiFromBscToNbai(eventLog types.Log, txHashInNbai string, blockNo uint
 		childChainTX.ID = childChainTractionID
 	}
 
-	childChainTX.TxHashInNbai = txHashInNbai
+	fromNetwork, _ := models.GetNetworkInfoByUUID(constants.NETWORK_INFO_UUID_FOR_BSC)
+	childChainTX.FromNetwork = fromNetwork.ID
+	toNetwork, _ := models.GetNetworkInfoByUUID(constants.NETWORK_INFO_UUID_FOR_NBAI)
+	childChainTX.ToNetwork = toNetwork.ID
+
+	childChainTX.TxHashFrom = eventLog.TxHash.Hex()
+	childChainTX.TxHashTo = tx.Hash().Hex()
 	childChainTX.BlockNo = blockNo
 	currenTime := utils.GetEpochInMillis()
 	childChainTX.CreateAt = strconv.FormatInt(currenTime, 10)
@@ -123,35 +125,4 @@ func swapNbaiFromBscToNbai(eventLog types.Log, txHashInNbai string, blockNo uint
 		return err
 	}
 	return nil
-}
-
-func getContractBalance(client *ethclient.Client, address string) (*big.Int, error) {
-	account := common.HexToAddress(address)
-	balance, err := client.BalanceAt(context.Background(), account, nil)
-	if err != nil {
-		logs.GetLogger().Error(err)
-	}
-	fmt.Println(weiToEther(balance))
-	return balance, err
-}
-
-func weiToEther(wei *big.Int) *big.Float {
-	f := new(big.Float)
-	f.SetPrec(236) //  IEEE 754 octuple-precision binary floating-point format: binary256
-	f.SetMode(big.ToNearestEven)
-	fWei := new(big.Float)
-	fWei.SetPrec(236) //  IEEE 754 octuple-precision binary floating-point format: binary256
-	fWei.SetMode(big.ToNearestEven)
-	return f.Quo(fWei.SetInt(wei), big.NewFloat(params.Ether))
-}
-
-func EncodeToBytes(p interface{}) ([]byte, error) {
-	buf := bytes.Buffer{}
-	enc := gob.NewEncoder(&buf)
-	err := enc.Encode(p)
-	if err != nil {
-		logs.GetLogger().Error(err)
-		return nil, err
-	}
-	return buf.Bytes(), nil
 }

@@ -2,7 +2,6 @@ package nbai2bsc
 
 import (
 	"context"
-	"fmt"
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
@@ -67,9 +66,6 @@ func ScanNbaiEventFromChainAndSaveEventLogData(blockNoFrom, blockNoTo int64) err
 	}
 
 	for _, vLog := range logsInChain {
-		fmt.Println(vLog.Topics[0].Hex())
-		//if log have this contractor function signer
-		fmt.Println(vLog.Topics[0].Hex())
 		if vLog.Topics[0].Hex() == contractFunctionSignature {
 			eventList, err := models.FindEventNbai(&models.EventNbai{TxHash: vLog.TxHash.Hex(), BlockNo: vLog.BlockNumber}, "id desc", "10", "0")
 			if err != nil {
@@ -102,9 +98,13 @@ func ScanNbaiEventFromChainAndSaveEventLogData(blockNoFrom, blockNoTo int64) err
 						event.FromAddress = txMsg.From().Hex()
 					}
 				}
-				/*quantity := new(big.Int)
-				quantity.SetBytes(vLog.Data)
-				event.Quantity = quantity.String()*/
+
+				txInLog, _, _ := nbaiclient.WebConn.ConnWeb.TransactionByHash(context.Background(), vLog.TxHash)
+				if txInLog != nil {
+					quantity := new(big.Int)
+					quantity.SetBytes(txInLog.Value().Bytes())
+					event.Quantity = quantity.String()
+				}
 
 				err = database.SaveOne(event)
 				if err != nil {

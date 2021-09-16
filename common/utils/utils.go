@@ -1,11 +1,15 @@
 package utils
 
 import (
+	"bytes"
 	"context"
+	"encoding/gob"
+	"fmt"
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
+	"github.com/ethereum/go-ethereum/params"
 	"io/ioutil"
 	"math/big"
 	"os"
@@ -79,4 +83,35 @@ func IsZeroAddress(iaddress interface{}) bool {
 	zeroAddressBytes := common.FromHex("0x0000000000000000000000000000000000000000")
 	addressBytes := address.Bytes()
 	return reflect.DeepEqual(addressBytes, zeroAddressBytes)
+}
+
+func getContractBalance(client *ethclient.Client, address string) (*big.Int, error) {
+	account := common.HexToAddress(address)
+	balance, err := client.BalanceAt(context.Background(), account, nil)
+	if err != nil {
+		logs.GetLogger().Error(err)
+	}
+	fmt.Println(weiToEther(balance))
+	return balance, err
+}
+
+func weiToEther(wei *big.Int) *big.Float {
+	f := new(big.Float)
+	f.SetPrec(236) //  IEEE 754 octuple-precision binary floating-point format: binary256
+	f.SetMode(big.ToNearestEven)
+	fWei := new(big.Float)
+	fWei.SetPrec(236) //  IEEE 754 octuple-precision binary floating-point format: binary256
+	fWei.SetMode(big.ToNearestEven)
+	return f.Quo(fWei.SetInt(wei), big.NewFloat(params.Ether))
+}
+
+func EncodeToBytes(p interface{}) ([]byte, error) {
+	buf := bytes.Buffer{}
+	enc := gob.NewEncoder(&buf)
+	err := enc.Encode(p)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return nil, err
+	}
+	return buf.Bytes(), nil
 }

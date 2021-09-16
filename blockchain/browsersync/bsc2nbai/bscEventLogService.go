@@ -96,17 +96,18 @@ func ScanBSCEventFromChainAndSaveEventLogData(blockNoFrom, blockNoTo int64) erro
 							event.FromAddress = txMsg.From().Hex()
 						}
 					}
-
 					err = database.SaveOne(event)
 					if err != nil {
 						logs.GetLogger().Error(err)
 						continue
 					}
-					err = swapNbaiFromBscToNbai(vLog, vLog.TxHash.Hex(), vLog.BlockNumber, 0)
+					logs.GetLogger().Info("*************************bsc to nbai swaping start************************** ")
+					err = swapNbaiFromBscToNbai(vLog, vLog.BlockNumber, 0)
 					if err != nil {
 						logs.GetLogger().Error(err)
 						continue
 					}
+					logs.GetLogger().Info("*************************bsc to nbai swaping end************************** ")
 				}
 			}
 

@@ -1,10 +1,10 @@
 package main
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	cors "github.com/itsjamie/gin-cors"
 	"github.com/joho/godotenv"
+	"swap-scan/blockchain/browsersync/bsc2nbai"
 	"swap-scan/blockchain/browsersync/nbai2bsc"
 	"swap-scan/blockchain/initclient/bscclient"
 	"swap-scan/blockchain/initclient/nbaiclient"
@@ -24,12 +24,9 @@ func main() {
 
 	initMethod()
 
-	conf := config.GetConfig()
-	fmt.Println(conf)
-
 	//go schedule.RedoMappingSchedule()
 
-	//go bsc2nbai.BscBlockBrowserSyncAndEventLogsSync()
+	go bsc2nbai.BscBlockBrowserSyncAndEventLogsSync()
 
 	go nbai2bsc.NbaiBlockBrowserSyncAndEventLogsSync()
 
