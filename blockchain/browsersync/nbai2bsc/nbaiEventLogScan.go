@@ -1,4 +1,4 @@
-package nbai
+package nbai2bsc
 
 import (
 	"math/big"
@@ -41,26 +41,27 @@ func NbaiBlockBrowserSyncAndEventLogsSync() {
 		blockScanRecordList, err := blockScanRecord.FindLastCurrentBlockNumber(whereCondition)
 		if err != nil {
 			logs.GetLogger().Error(err)
-			startScanBlockNo = config.GetConfig().NbaiMainnetNode.StartFromBlockNo
+			startScanBlockNo = config.GetConfig().NbaiToBsc.StartFromBlockNo
 		}
 		if len(blockScanRecordList) > 0 {
 			if blockScanRecordList[0].LastCurrentBlockNumber <= blockNoCurrent.Int64() {
 				startScanBlockNo = blockScanRecordList[0].LastCurrentBlockNumber
 			} else {
-				startScanBlockNo = config.GetConfig().NbaiMainnetNode.StartFromBlockNo
+				startScanBlockNo = config.GetConfig().NbaiToBsc.StartFromBlockNo
 			}
 			blockScanRecord.ID = blockScanRecordList[0].ID
 		}
 
 		for {
 			start := startScanBlockNo
-			end := start + config.GetConfig().NbaiMainnetNode.ScanStep
+			end := start + config.GetConfig().NbaiToBsc.ScanStep
 			if startScanBlockNo > blockNoCurrent.Int64() {
 				break
 			}
 			err = ScanNbaiEventFromChainAndSaveEventLogData(start, end)
 			if err != nil {
 				logs.GetLogger().Error(err)
+				time.Sleep(time.Second * 1)
 				continue
 			}
 
@@ -88,7 +89,7 @@ func NbaiBlockBrowserSyncAndEventLogsSync() {
 		getBlockFlag = true
 		mutex.Unlock()
 
-		time.Sleep(time.Second * config.GetConfig().NbaiMainnetNode.CycleTimeInterval)
+		time.Sleep(time.Second * config.GetConfig().NbaiToBsc.CycleTimeInterval)
 		logs.GetLogger().Info("-------------------------nbai----------------------------")
 	}
 }
@@ -96,8 +97,8 @@ func NbaiBlockBrowserSyncAndEventLogsSync() {
 func getStartBlockNo() int64 {
 	var startScanBlockNo int64 = 1
 
-	if config.GetConfig().NbaiMainnetNode.StartFromBlockNo > 0 {
-		startScanBlockNo = config.GetConfig().NbaiMainnetNode.StartFromBlockNo
+	if config.GetConfig().NbaiToBsc.StartFromBlockNo > 0 {
+		startScanBlockNo = config.GetConfig().NbaiToBsc.StartFromBlockNo
 	}
 
 	blockScanRecord := new(models2.BlockScanRecord)
@@ -105,7 +106,7 @@ func getStartBlockNo() int64 {
 	blockScanRecordList, err := blockScanRecord.FindLastCurrentBlockNumber(whereCondition)
 	if err != nil {
 		logs.GetLogger().Error(err)
-		startScanBlockNo = config.GetConfig().NbaiMainnetNode.StartFromBlockNo
+		startScanBlockNo = config.GetConfig().NbaiToBsc.StartFromBlockNo
 	}
 
 	if len(blockScanRecordList) > 0 {

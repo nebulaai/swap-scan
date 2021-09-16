@@ -1,4 +1,4 @@
-package nbai
+package nbai2bsc
 
 import (
 	"context"
@@ -21,8 +21,8 @@ import (
 )
 
 func ChangeNbaiToBnb(data []byte, txHashInNbai string, blockNo uint64, childChainTractionID int64) error {
-	pk := os.Getenv("privateKey")
-	fromAddress := common.HexToAddress(config.GetConfig().BscMainnetNode.BscAdminWallet)
+	pk := os.Getenv(constants.PRIVATE_KEY_NAME_FOR_BSC_ADMIN_WALLET)
+	fromAddress := common.HexToAddress(config.GetConfig().BscAdminWallet)
 	client := bscclient.WebConn.ConnWeb
 	nonce, err := client.PendingNonceAt(context.Background(), fromAddress)
 	if err != nil {
@@ -45,25 +45,24 @@ func ChangeNbaiToBnb(data []byte, txHashInNbai string, blockNo uint64, childChai
 	//callOpts := new(bind.TransactOpts)
 	callOpts.Nonce = big.NewInt(int64(nonce))
 	callOpts.GasPrice = gasPrice
-	callOpts.GasLimit = config.GetConfig().BscMainnetNode.GasLimit
+	callOpts.GasLimit = config.GetConfig().NbaiToBsc.GasLimit
 	callOpts.Context = context.Background()
 
-	childManagerAddress := common.HexToAddress(config.GetConfig().BscMainnetNode.ChildChainManageContractAddress) //to config：想要调用的合约地址
+	childManagerAddress := common.HexToAddress(config.GetConfig().NbaiToBsc.NbaiSwapTobscContractAddress)
 	childInstance, _ := goBind.NewChildChainManagerContract(childManagerAddress, client)
 
-	childChainTX := new(models.ChildChainTransaction)
+	childChainTX := new(models.SwapCoinTransaction)
 	childChainTX.Status = constants.TRANSACTION_STATUS_FAIL
 	tx, err := childInstance.OnStateReceive(callOpts, big.NewInt(int64(1)), data)
 	if err != nil {
 		logs.GetLogger().Error(err)
 		childChainTX.Status = constants.TRANSACTION_STATUS_FAIL
-		childChainTX.TxHashInBsc = ""
+		childChainTX.TxHashTo = ""
 		childChainTX.Status = constants.TRANSACTION_STATUS_FAIL
 	} else {
-		childChainTX.TxHashInBsc = tx.Hash().Hex()
+		childChainTX.TxHashTo = tx.Hash().Hex()
 		childChainTX.Status = constants.TRANSACTION_STATUS_SUCCESS
 	}
-
 	if err == nil {
 		txMsg, err := tx.AsMessage(types.NewEIP155Signer(big.NewInt(config.GetConfig().BscMainnetNode.ChainID)), nil)
 		if err != nil {
@@ -77,12 +76,13 @@ func ChangeNbaiToBnb(data []byte, txHashInNbai string, blockNo uint64, childChai
 	txRecept, err := utils.CheckTx(bscclient.WebConn.ConnWeb, tx)
 	if err != nil {
 		logs.GetLogger().Error(err)
-	}
-	if txRecept.Status == uint64(1) {
-		if childChainTX.FromAddress != "" {
-			childChainTX.Status = constants.HTTP_STATUS_SUCCESS
+	} else {
+		if txRecept.Status == uint64(1) {
+			if childChainTX.FromAddress != "" {
+				childChainTX.Status = constants.HTTP_STATUS_SUCCESS
+			}
+			childChainTX.GasFeeUsed = strconv.FormatUint(txRecept.GasUsed, 10)
 		}
-		childChainTX.GasFeeUsed = strconv.FormatUint(txRecept.GasUsed, 10)
 	}
 
 	if len(txRecept.Logs) > 0 {
@@ -99,7 +99,11 @@ func ChangeNbaiToBnb(data []byte, txHashInNbai string, blockNo uint64, childChai
 		childChainTX.ID = childChainTractionID
 	}
 
-	childChainTX.TxHashInNbai = txHashInNbai
+	fromNetwork, _ := models.GetNetworkInfoByUUID(constants.NETWORK_INFO_UUID_FOR_NBAI)
+	childChainTX.FromNetwork = fromNetwork.ID
+	toNetwork, _ := models.GetNetworkInfoByUUID(constants.NETWORK_INFO_UUID_FOR_BSC)
+	childChainTX.ToNetwork = toNetwork.ID
+	childChainTX.TxHashFrom = txHashInNbai
 	childChainTX.BlockNo = blockNo
 	currenTime := utils.GetEpochInMillis()
 	childChainTX.CreateAt = strconv.FormatInt(currenTime, 10)

@@ -10,7 +10,7 @@ import (
 	"math/big"
 	"strconv"
 	"strings"
-	"swap-scan/blockchain/browsersync/nbai"
+	"swap-scan/blockchain/browsersync/nbai2bsc"
 	"swap-scan/blockchain/initclient/nbaiclient"
 	"swap-scan/common/constants"
 	"swap-scan/config"
@@ -79,7 +79,7 @@ func RedoMapping() error {
 					continue
 				}
 
-				err = nbai.ChangeNbaiToBnb(receiveMap["data"].([]byte), v.TxHashInNbai, v.BlockNo, v.ID)
+				err = nbai2bsc.ChangeNbaiToBnb(receiveMap["data"].([]byte), v.TxHashInNbai, v.BlockNo, v.ID)
 				if err != nil {
 					logs.GetLogger().Error(err)
 					continue
