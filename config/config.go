@@ -11,6 +11,7 @@ type Configuration struct {
 	Port            string          `toml:"port"`
 	Dev             bool            `toml:"dev"`
 	BscAdminWallet  string          `toml:"bsc_admin_wallet"`
+	NbaiAdminWallet string          `toml:"nbai_admin_wallet"`
 	Database        database        `toml:"data_base"`
 	NbaiMainnetNode NbaiMainnetNode `toml:"nbai_mainnet_node"`
 	BscMainnetNode  BscMainnetNode  `toml:"bsc_mainnet_node"`

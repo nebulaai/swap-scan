@@ -23,4 +23,7 @@ const (
 	TRANSACTION_STATUS_SUCCESS = "success"
 	TRANSACTION_STATUS_FAIL    = "fail"
 	RANSACTION_STATUS_PENDING  = "pending"
+
+	PRIVATE_KEY_NAME_FOR_BSC_ADMIN_WALLET  = "privateKeyForBscAdminWallet"
+	PRIVATE_KEY_NAME_FOR_NBAI_ADMIN_WALLET = "privateKeyForNbaiAdminWallet"
 )

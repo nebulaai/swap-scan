@@ -112,11 +112,11 @@ func ScanNbaiEventFromChainAndSaveEventLogData(blockNoFrom, blockNoTo int64) err
 					continue
 				}
 				logs.GetLogger().Info("*************************nbai to bsc swaping start************************** ")
-				/*err = ChangeNbaiToBnb(receiveMap["data"].([]byte), vLog.TxHash.Hex(), vLog.BlockNumber, 0)
+				err = ChangeNbaiToBnb(receiveMap["data"].([]byte), vLog.TxHash.Hex(), vLog.BlockNumber, 0)
 				if err != nil {
 					logs.GetLogger().Error(err)
 					continue
-				}*/
+				}
 				logs.GetLogger().Info("*************************nbai to bsc swaping end************************** ")
 			}
 		}

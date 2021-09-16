@@ -61,52 +61,55 @@ func ScanBSCEventFromChainAndSaveEventLogData(blockNoFrom, blockNoTo int64) erro
 
 	for _, vLog := range logsInChain {
 		if vLog.Topics[0].Hex() == contractFunctionSignature {
-			eventList, err := models.FindEventBsc(&models.EventBsc{TxHash: vLog.TxHash.Hex(), BlockNo: vLog.BlockNumber}, "id desc", "10", "0")
-			if err != nil {
-				logs.GetLogger().Error(err)
-				continue
-			}
-			if len(eventList) <= 0 {
-				quantity := new(big.Int)
-				quantity.SetBytes(vLog.Data)
-				/*receiveMap := map[string]interface{}{}
-				err = contractAbiInstans.UnpackIntoMap(receiveMap, "withdraw", vLog.Data)
+			if utils.IsZeroAddress(vLog.Topics[2].Hex()) {
+				eventList, err := models.FindEventBsc(&models.EventBsc{TxHash: vLog.TxHash.Hex(), BlockNo: vLog.BlockNumber}, "id desc", "10", "0")
 				if err != nil {
 					logs.GetLogger().Error(err)
 					continue
-				}*/
-				var event = new(models.EventBsc)
-				event.BlockNo = vLog.BlockNumber
-				event.TxHash = vLog.TxHash.Hex()
-				event.ContractName = "SwanPayment"
-				event.ContractAddress = contractAddress.String()
-				event.BytesData = vLog.Data
-				event.Quantity = quantity.String()
-				event.CreateAt = strconv.FormatInt(utils.GetEpochInMillis(), 10)
-				tx, _, err := bscclient.WebConn.ConnWeb.TransactionByHash(context.Background(), vLog.TxHash)
-				if err != nil {
-					logs.GetLogger().Error(err)
-				} else {
-					event.ToAddress = tx.To().Hex()
-					txMsg, err := tx.AsMessage(types.NewEIP155Signer(big.NewInt(config.GetConfig().BscMainnetNode.ChainID)), nil)
+				}
+				if len(eventList) <= 0 {
+					quantity := new(big.Int)
+					quantity.SetBytes(vLog.Data)
+					/*receiveMap := map[string]interface{}{}
+					err = contractAbiInstans.UnpackIntoMap(receiveMap, "withdraw", vLog.Data)
+					if err != nil {
+						logs.GetLogger().Error(err)
+						continue
+					}*/
+					var event = new(models.EventBsc)
+					event.BlockNo = vLog.BlockNumber
+					event.TxHash = vLog.TxHash.Hex()
+					event.ContractName = "SwanPayment"
+					event.ContractAddress = contractAddress.String()
+					event.BytesData = vLog.Data
+					event.Quantity = quantity.String()
+					event.CreateAt = strconv.FormatInt(utils.GetEpochInMillis(), 10)
+					tx, _, err := bscclient.WebConn.ConnWeb.TransactionByHash(context.Background(), vLog.TxHash)
 					if err != nil {
 						logs.GetLogger().Error(err)
 					} else {
-						event.FromAddress = txMsg.From().Hex()
+						event.ToAddress = tx.To().Hex()
+						txMsg, err := tx.AsMessage(types.NewEIP155Signer(big.NewInt(config.GetConfig().BscMainnetNode.ChainID)), nil)
+						if err != nil {
+							logs.GetLogger().Error(err)
+						} else {
+							event.FromAddress = txMsg.From().Hex()
+						}
+					}
+
+					err = database.SaveOne(event)
+					if err != nil {
+						logs.GetLogger().Error(err)
+						continue
+					}
+					err = swapNbaiFromBscToNbai(vLog, vLog.TxHash.Hex(), vLog.BlockNumber, 0)
+					if err != nil {
+						logs.GetLogger().Error(err)
+						continue
 					}
 				}
-
-				err = database.SaveOne(event)
-				if err != nil {
-					logs.GetLogger().Error(err)
-					continue
-				}
-				err = swapNbaiFromBscToNbai(vLog.Data, vLog.TxHash.Hex(), vLog.BlockNumber, 0)
-				if err != nil {
-					logs.GetLogger().Error(err)
-					continue
-				}
 			}
+
 		}
 	}
 	return nil
