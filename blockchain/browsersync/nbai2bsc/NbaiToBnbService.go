@@ -72,27 +72,26 @@ func ChangeNbaiToBnb(data []byte, txHashInNbai string, blockNo uint64, childChai
 			childChainTX.ToAddress = tx.To().Hex()
 			childChainTX.FromAddress = txMsg.From().Hex()
 		}
-	}
-	txRecept, err := utils.CheckTx(bscclient.WebConn.ConnWeb, tx)
-	if err != nil {
-		logs.GetLogger().Error(err)
-	} else {
-		if txRecept.Status == uint64(1) {
-			if childChainTX.FromAddress != "" {
-				childChainTX.Status = constants.HTTP_STATUS_SUCCESS
+		txRecept, err := utils.CheckTx(bscclient.WebConn.ConnWeb, tx)
+		if err != nil {
+			logs.GetLogger().Error(err)
+		} else {
+			if txRecept.Status == uint64(1) {
+				if childChainTX.FromAddress != "" {
+					childChainTX.Status = constants.HTTP_STATUS_SUCCESS
+				}
+				childChainTX.GasFeeUsed = strconv.FormatUint(txRecept.GasUsed, 10)
 			}
-			childChainTX.GasFeeUsed = strconv.FormatUint(txRecept.GasUsed, 10)
 		}
-	}
-
-	if len(txRecept.Logs) > 0 {
-		eventLogs := txRecept.Logs
-		/*userWallet := hex.EncodeToString(eventLogs[0].Topics[1].Bytes())
-		childChainTX.UserNbaiWallet = userWallet*/
-		quantity := new(big.Int)
-		quantity.SetBytes(eventLogs[0].Data)
-		childChainTX.Quantity = quantity.String()
-		childChainTX.BlockNoBsc = eventLogs[0].BlockNumber
+		if len(txRecept.Logs) > 0 {
+			eventLogs := txRecept.Logs
+			/*userWallet := hex.EncodeToString(eventLogs[0].Topics[1].Bytes())
+			childChainTX.UserNbaiWallet = userWallet*/
+			quantity := new(big.Int)
+			quantity.SetBytes(eventLogs[0].Data)
+			childChainTX.Quantity = quantity.String()
+			childChainTX.BlockNoBsc = eventLogs[0].BlockNumber
+		}
 	}
 
 	if childChainTractionID > 0 {
