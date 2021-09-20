@@ -1,4 +1,4 @@
-package nbai2bsc
+package eth2bsc
 
 import (
 	"context"
@@ -9,7 +9,7 @@ import (
 	"math/big"
 	"strconv"
 	"strings"
-	"swap-scan/blockchain/initclient/nbaiclient"
+	"swap-scan/blockchain/initclient/ethclient"
 	"swap-scan/common/utils"
 	"swap-scan/config"
 	"swap-scan/database"
@@ -26,9 +26,9 @@ import (
  */
 
 // EventLogSave Find the event that executed the contract and save to db
-func ScanNbaiEventFromChainAndSaveEventLogData(blockNoFrom, blockNoTo int64) error {
+func ScanEthEventFromChainAndSaveEventLogData(blockNoFrom, blockNoTo int64) error {
 	//read contract api json file
-	logs.GetLogger().Println("nbai blockNoFrom=" + strconv.FormatInt(blockNoFrom, 10) + "--------------blockNoTo=" + strconv.FormatInt(blockNoTo, 10))
+	logs.GetLogger().Println("eth blockNoFrom=" + strconv.FormatInt(blockNoFrom, 10) + "--------------blockNoTo=" + strconv.FormatInt(blockNoTo, 10))
 	//paymentAbiString, err := utils.ReadContractAbiJsonFile(goBind.StateSenderABI)
 	paymentAbiString, err := abi.JSON(strings.NewReader(string(goBind.StateSenderABI)))
 	if err != nil {
@@ -36,10 +36,8 @@ func ScanNbaiEventFromChainAndSaveEventLogData(blockNoFrom, blockNoTo int64) err
 		return err
 	}
 
-	//SwanPayment contract address
-	contractAddress := common.HexToAddress(config.GetConfig().NbaiToBsc.NbaiToBscEventContractAddress)
-	//SwanPayment contract function signature
-	contractFunctionSignature := config.GetConfig().NbaiToBsc.NbaiToBscEventContractEventFunctionSignature
+	contractAddress := common.HexToAddress(config.GetConfig().EthToBsc.EthToBscEventContractAddress)
+	contractFunctionSignature := config.GetConfig().EthToBsc.EthToBscEventContractEventFunctionSignature
 
 	//test block no. is : 5297224
 	query := ethereum.FilterQuery{
@@ -54,7 +52,7 @@ func ScanNbaiEventFromChainAndSaveEventLogData(blockNoFrom, blockNoTo int64) err
 	var logsInChain []types.Log
 	var flag bool = true
 	for flag {
-		logsInChain, err = nbaiclient.WebConn.ConnWeb.FilterLogs(context.Background(), query)
+		logsInChain, err = ethclient.WebConn.ConnWeb.FilterLogs(context.Background(), query)
 		if err != nil {
 			logs.GetLogger().Error(err)
 			time.Sleep(5 * time.Second)
@@ -67,7 +65,7 @@ func ScanNbaiEventFromChainAndSaveEventLogData(blockNoFrom, blockNoTo int64) err
 
 	for _, vLog := range logsInChain {
 		if vLog.Topics[0].Hex() == contractFunctionSignature {
-			eventList, err := models.FindEventNbai(&models.EventNbai{TxHash: vLog.TxHash.Hex(), BlockNo: vLog.BlockNumber}, "id desc", "10", "0")
+			eventList, err := models.FindEventEth(&models.EventEth{TxHash: vLog.TxHash.Hex(), BlockNo: vLog.BlockNumber}, "id desc", "10", "0")
 			if err != nil {
 				logs.GetLogger().Error(err)
 				continue
@@ -79,14 +77,14 @@ func ScanNbaiEventFromChainAndSaveEventLogData(blockNoFrom, blockNoTo int64) err
 					logs.GetLogger().Error(err)
 					continue
 				}
-				var event = new(models.EventNbai)
+				var event = new(models.EventEth)
 				event.BlockNo = vLog.BlockNumber
 				event.TxHash = vLog.TxHash.Hex()
 				event.ContractName = "SwanPayment"
 				event.ContractAddress = contractAddress.String()
 				event.BytesData = receiveMap["data"].([]byte)
 				event.CreateAt = strconv.FormatInt(utils.GetEpochInMillis(), 10)
-				tx, _, err := nbaiclient.WebConn.ConnWeb.TransactionByHash(context.Background(), vLog.TxHash)
+				tx, _, err := ethclient.WebConn.ConnWeb.TransactionByHash(context.Background(), vLog.TxHash)
 				if err != nil {
 					logs.GetLogger().Error(err)
 				} else {
@@ -99,7 +97,7 @@ func ScanNbaiEventFromChainAndSaveEventLogData(blockNoFrom, blockNoTo int64) err
 					}
 				}
 
-				txInLog, _, _ := nbaiclient.WebConn.ConnWeb.TransactionByHash(context.Background(), vLog.TxHash)
+				txInLog, _, _ := ethclient.WebConn.ConnWeb.TransactionByHash(context.Background(), vLog.TxHash)
 				if txInLog != nil {
 					quantity := new(big.Int)
 					quantity.SetBytes(txInLog.Value().Bytes())
@@ -111,13 +109,13 @@ func ScanNbaiEventFromChainAndSaveEventLogData(blockNoFrom, blockNoTo int64) err
 					logs.GetLogger().Error(err)
 					continue
 				}
-				logs.GetLogger().Info("*************************nbai to bsc swaping start************************** ")
-				err = ChangeNbaiToBnb(receiveMap["data"].([]byte), vLog.TxHash.Hex(), vLog.BlockNumber, 0)
+				logs.GetLogger().Info("*************************eth to bsc swaping start************************** ")
+				err = ChangEthToBnb(receiveMap["data"].([]byte), vLog.TxHash.Hex(), vLog.BlockNumber, 0)
 				if err != nil {
 					logs.GetLogger().Error(err)
 					continue
 				}
-				logs.GetLogger().Info("*************************nbai to bsc swaping end************************** ")
+				logs.GetLogger().Info("*************************eth to bsc swaping end************************** ")
 			}
 		}
 	}

@@ -15,9 +15,11 @@ type Configuration struct {
 	Database        database        `toml:"data_base"`
 	NbaiMainnetNode NbaiMainnetNode `toml:"nbai_mainnet_node"`
 	BscMainnetNode  BscMainnetNode  `toml:"bsc_mainnet_node"`
+	EthMainnetNode  EthMainnetNode  `toml:"eth_mainnet_node"`
 	ScheduleRule    ScheduleRule    `toml:"schedule_rule"`
 	NbaiToBsc       NbaiToBsc       `toml:"nbai_to_bsc"`
 	BscToNbai       BscToNbai       `toml:"bsc_to_nbai"`
+	EthToBsc        EthToBsc        `toml:"eth_to_bsc"`
 }
 
 type database struct {
@@ -39,8 +41,13 @@ type BscMainnetNode struct {
 	ChainID int64  `toml:"chain_ID"`
 }
 
+type EthMainnetNode struct {
+	RpcUrl  string `toml:"rpc_url"`
+	ChainID int64  `toml:"chain_ID"`
+}
+
 type NbaiToBsc struct {
-	NbaiToBscEventTransferContractAddress        string        `toml:"nbai_to_bsc_event_contract_address"` // for scan event
+	NbaiToBscEventContractAddress                string        `toml:"nbai_to_bsc_event_contract_address"` // for scan event
 	NbaiToBscEventContractEventFunctionSignature string        `toml:"nbai_to_bsc_event_contract_event_function_signature"`
 	ScanStep                                     int64         `toml:"scan_step"`
 	StartFromBlockNo                             int64         `toml:"start_from_blockNo"`
@@ -56,6 +63,15 @@ type BscToNbai struct {
 	BscToNbaiEventContractAddress                string        `toml:"bsc_to_nbai_event_contract_address"` // for scan event
 	BscToNbaiEventContractEventFunctionSignature string        `toml:"bsc_to_nbai_event_contract_event_function_signature"`
 	BscSwapToNbaiContractAddress                 string        `toml:"bsc_swap_to_nbai_contract_address"`
+}
+
+type EthToBsc struct {
+	StartFromBlockNo                            int64         `toml:"start_from_blockNo"`
+	CycleTimeInterval                           time.Duration `toml:"cycle_time_interval"`
+	ScanStep                                    int64         `toml:"scan_step"`
+	EthToBscEventContractAddress                string        `toml:"eth_to_bsc_event_contract_address"` // for scan event
+	EthToBscEventContractEventFunctionSignature string        `toml:"eth_to_bsc_event_contract_event_function_signature"`
+	EthSwapToBscContractAddress                 string        `toml:"eth_swap_to_bsc_contract_address"`
 }
 
 type ScheduleRule struct {
