@@ -21,7 +21,7 @@ import (
 )
 
 func RedoMapping() error {
-	txList, err := models.FindChildChainTransaction(&models.ChildChainTransaction{Status: constants.TRANSACTION_STATUS_FAIL, TxHashInBsc: ""}, "create_at desc", "-1", "0")
+	txList, err := models.FindChildChainTransaction(&models.SwapCoinTransaction{Status: constants.TRANSACTION_STATUS_FAIL, TxHashTo: ""}, "create_at desc", "-1", "0")
 	if err != nil {
 		logs.GetLogger().Error(err)
 		return err
@@ -36,7 +36,7 @@ func RedoMapping() error {
 		}
 
 		//SwanPayment contract address
-		contractAddress := common.HexToAddress(config.GetConfig().NbaiMainnetNode.PaymentContractAddress)
+		contractAddress := common.HexToAddress(config.GetConfig().NbaiToBsc.NbaiToBscEventContractAddress)
 
 		//test block no. is : 5297224
 		blockNoInt, err := strconv.Atoi(strconv.FormatUint(v.BlockNo, 10))
@@ -68,7 +68,7 @@ func RedoMapping() error {
 		}
 
 		for _, vLog := range logsInChain {
-			if vLog.TxHash.Hex() == strings.TrimSpace(v.TxHashInNbai) {
+			if vLog.TxHash.Hex() == strings.TrimSpace(v.TxHashFrom) {
 				fmt.Println(vLog.BlockHash.Hex())
 				fmt.Println(vLog.BlockNumber)
 				fmt.Println(vLog.TxHash.Hex())
@@ -79,7 +79,7 @@ func RedoMapping() error {
 					continue
 				}
 
-				err = nbai2bsc.ChangeNbaiToBnb(receiveMap["data"].([]byte), v.TxHashInNbai, v.BlockNo, v.ID)
+				err = nbai2bsc.ChangeNbaiToBnb(receiveMap["data"].([]byte), v.TxHashFrom, v.BlockNo, v.ID)
 				if err != nil {
 					logs.GetLogger().Error(err)
 					continue

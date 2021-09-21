@@ -3,6 +3,7 @@ package models
 import (
 	"swap-scan/common/constants"
 	"swap-scan/database"
+	"swap-scan/logs"
 )
 
 type SwapCoinTransaction struct {
@@ -35,4 +36,17 @@ func FindChildChainTransaction(whereCondition interface{}, orderCondition, limit
 	var models []*SwapCoinTransaction
 	err := db.Where(whereCondition).Offset(offset).Limit(limit).Order(orderCondition).Find(&models).Error
 	return models, err
+}
+
+func CheckHaveSwapSuccess(txHashFrom string) (haveSwapped bool, err error) {
+	txList, err := FindChildChainTransaction(&SwapCoinTransaction{Status: constants.TRANSACTION_STATUS_SUCCESS, TxHashFrom: txHashFrom}, "create_at desc", "-1", "0")
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return false, err
+	}
+	if len(txList) > 0 {
+		return true, nil
+	} else {
+		return false, nil
+	}
 }
