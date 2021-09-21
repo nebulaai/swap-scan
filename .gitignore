@@ -36,6 +36,7 @@ venv.bak/
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
 .idea
+.idea/
 
 # The project's config file
 config.toml
