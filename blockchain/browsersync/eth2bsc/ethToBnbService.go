@@ -20,7 +20,7 @@ import (
 	"swap-scan/on-chain/goBind"
 )
 
-func ChangEthToBnb(data []byte, txHashInNbai string, blockNo uint64, childChainTractionID int64) error {
+func ChangNBAIERC20OnEthToBnb(data []byte, txHashInNbai string, blockNo uint64, childChainTractionID int64) error {
 	pk := os.Getenv(constants.PRIVATE_KEY_NAME_FOR_BSC_ADMIN_WALLET)
 	fromAddress := common.HexToAddress(config.GetConfig().BscAdminWallet)
 	client := bscclient.WebConn.ConnWeb
@@ -83,22 +83,18 @@ func ChangEthToBnb(data []byte, txHashInNbai string, blockNo uint64, childChainT
 				childChainTX.GasFeeUsed = strconv.FormatUint(txRecept.GasUsed, 10)
 			}
 		}
-		if len(txRecept.Logs) > 0 {
-			eventLogs := txRecept.Logs
-			/*userWallet := hex.EncodeToString(eventLogs[0].Topics[1].Bytes())
-			childChainTX.UserNbaiWallet = userWallet*/
-			quantity := new(big.Int)
-			quantity.SetBytes(eventLogs[0].Data)
-			childChainTX.Quantity = quantity.String()
-			childChainTX.BlockNoBsc = eventLogs[0].BlockNumber
-		}
+		quantity := new(big.Int)
+		quantity.SetBytes(data)
+		childChainTX.Quantity = quantity.String()
+		childChainTX.BlockNoBsc = txRecept.BlockNumber.Uint64()
+
 	}
 
 	if childChainTractionID > 0 {
 		childChainTX.ID = childChainTractionID
 	}
 
-	fromNetwork, _ := models.GetNetworkInfoByUUID(constants.NETWORK_INFO_UUID_FOR_NBAI)
+	fromNetwork, _ := models.GetNetworkInfoByUUID(constants.NETWORK_INFO_UUID_FOR_ETH)
 	childChainTX.FromNetwork = fromNetwork.ID
 	toNetwork, _ := models.GetNetworkInfoByUUID(constants.NETWORK_INFO_UUID_FOR_BSC)
 	childChainTX.ToNetwork = toNetwork.ID

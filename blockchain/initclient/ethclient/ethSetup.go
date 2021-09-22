@@ -17,7 +17,7 @@ var WebConn = new(ConnSetup)
 func ClientInit() {
 
 	for {
-		rpcUrl := config.GetConfig().NbaiMainnetNode.RpcUrl
+		rpcUrl := config.GetConfig().EthMainnetNode.RpcUrl
 		client, err := ethclient.Dial(rpcUrl)
 		if err != nil {
 			logs.GetLogger().Error("Try to reconnect block chain node" + rpcUrl + " ...")

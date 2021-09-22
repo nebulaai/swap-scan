@@ -4,7 +4,6 @@ import (
 	"math/big"
 	"strconv"
 	"swap-scan/blockchain/initclient/ethclient"
-	"swap-scan/blockchain/initclient/nbaiclient"
 	"swap-scan/common/constants"
 	"swap-scan/common/utils"
 	"swap-scan/config"
@@ -15,7 +14,7 @@ import (
 	"time"
 )
 
-func ethBlockBrowserSyncAndEventLogsSync() {
+func EthBlockBrowserSyncAndEventLogsSync() {
 	startScanBlockNo := getStartBlockNo()
 
 	for {
@@ -25,7 +24,7 @@ func ethBlockBrowserSyncAndEventLogsSync() {
 		var err error
 		var getBlockFlag bool = true
 		for getBlockFlag {
-			blockNoCurrent, err = nbaiclient.WebConn.GetBlockNumber()
+			blockNoCurrent, err = ethclient.WebConn.GetBlockNumber()
 			if err != nil {
 				ethclient.ClientInit()
 				logs.GetLogger().Error(err)
@@ -42,20 +41,20 @@ func ethBlockBrowserSyncAndEventLogsSync() {
 		blockScanRecordList, err := blockScanRecord.FindLastCurrentBlockNumber(whereCondition)
 		if err != nil {
 			logs.GetLogger().Error(err)
-			startScanBlockNo = config.GetConfig().EthToBsc.StartFromBlockNo
+			startScanBlockNo = config.GetConfig().NbaiOnEthToBsc.StartFromBlockNo
 		}
 		if len(blockScanRecordList) > 0 {
 			if blockScanRecordList[0].LastCurrentBlockNumber <= blockNoCurrent.Int64() {
 				startScanBlockNo = blockScanRecordList[0].LastCurrentBlockNumber
 			} else {
-				startScanBlockNo = config.GetConfig().EthToBsc.StartFromBlockNo
+				startScanBlockNo = config.GetConfig().NbaiOnEthToBsc.StartFromBlockNo
 			}
 			blockScanRecord.ID = blockScanRecordList[0].ID
 		}
 
 		for {
 			start := startScanBlockNo
-			end := start + config.GetConfig().EthToBsc.ScanStep
+			end := start + config.GetConfig().NbaiOnEthToBsc.ScanStep
 			if startScanBlockNo > blockNoCurrent.Int64() {
 				break
 			}
@@ -90,7 +89,7 @@ func ethBlockBrowserSyncAndEventLogsSync() {
 		getBlockFlag = true
 		mutex.Unlock()
 
-		time.Sleep(time.Second * config.GetConfig().EthToBsc.CycleTimeInterval)
+		time.Sleep(time.Second * config.GetConfig().NbaiOnEthToBsc.CycleTimeInterval)
 		logs.GetLogger().Info("-------------------------eth----------------------------")
 	}
 }
@@ -98,8 +97,8 @@ func ethBlockBrowserSyncAndEventLogsSync() {
 func getStartBlockNo() int64 {
 	var startScanBlockNo int64 = 1
 
-	if config.GetConfig().EthToBsc.StartFromBlockNo > 0 {
-		startScanBlockNo = config.GetConfig().EthToBsc.StartFromBlockNo
+	if config.GetConfig().NbaiOnEthToBsc.StartFromBlockNo > 0 {
+		startScanBlockNo = config.GetConfig().NbaiOnEthToBsc.StartFromBlockNo
 	}
 
 	blockScanRecord := new(models2.BlockScanRecord)
@@ -107,7 +106,7 @@ func getStartBlockNo() int64 {
 	blockScanRecordList, err := blockScanRecord.FindLastCurrentBlockNumber(whereCondition)
 	if err != nil {
 		logs.GetLogger().Error(err)
-		startScanBlockNo = config.GetConfig().EthToBsc.StartFromBlockNo
+		startScanBlockNo = config.GetConfig().NbaiOnEthToBsc.StartFromBlockNo
 	}
 
 	if len(blockScanRecordList) > 0 {

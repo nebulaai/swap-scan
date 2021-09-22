@@ -3,19 +3,16 @@ package eth2bsc
 import (
 	"context"
 	"github.com/ethereum/go-ethereum"
-	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"math/big"
 	"strconv"
-	"strings"
 	"swap-scan/blockchain/initclient/ethclient"
 	"swap-scan/common/utils"
 	"swap-scan/config"
 	"swap-scan/database"
 	"swap-scan/logs"
 	"swap-scan/models"
-	"swap-scan/on-chain/goBind"
 	"time"
 )
 
@@ -29,17 +26,9 @@ import (
 func ScanEthEventFromChainAndSaveEventLogData(blockNoFrom, blockNoTo int64) error {
 	//read contract api json file
 	logs.GetLogger().Println("eth blockNoFrom=" + strconv.FormatInt(blockNoFrom, 10) + "--------------blockNoTo=" + strconv.FormatInt(blockNoTo, 10))
-	//paymentAbiString, err := utils.ReadContractAbiJsonFile(goBind.StateSenderABI)
-	paymentAbiString, err := abi.JSON(strings.NewReader(string(goBind.StateSenderABI)))
-	if err != nil {
-		logs.GetLogger().Error(err)
-		return err
-	}
+	contractAddress := common.HexToAddress(config.GetConfig().NbaiOnEthToBsc.NbaiOnEthToBscEventContractAddress)
+	contractFunctionSignature := config.GetConfig().NbaiOnEthToBsc.NbaiOnEthToBscEventContractEventFunctionSignature
 
-	contractAddress := common.HexToAddress(config.GetConfig().EthToBsc.EthToBscEventContractAddress)
-	contractFunctionSignature := config.GetConfig().EthToBsc.EthToBscEventContractEventFunctionSignature
-
-	//test block no. is : 5297224
 	query := ethereum.FilterQuery{
 		FromBlock: big.NewInt(blockNoFrom),
 		ToBlock:   big.NewInt(blockNoTo),
@@ -48,9 +37,9 @@ func ScanEthEventFromChainAndSaveEventLogData(blockNoFrom, blockNoTo int64) erro
 		},
 	}
 
-	//logs, err := client.FilterLogs(context.Background(), query)
 	var logsInChain []types.Log
 	var flag bool = true
+	var err error
 	for flag {
 		logsInChain, err = ethclient.WebConn.ConnWeb.FilterLogs(context.Background(), query)
 		if err != nil {
@@ -65,52 +54,42 @@ func ScanEthEventFromChainAndSaveEventLogData(blockNoFrom, blockNoTo int64) erro
 
 	for _, vLog := range logsInChain {
 		if vLog.Topics[0].Hex() == contractFunctionSignature {
-			eventList, err := models.FindEventEth(&models.EventEth{TxHash: vLog.TxHash.Hex(), BlockNo: vLog.BlockNumber}, "id desc", "10", "0")
+			eventList, err := models.FindEventNbaiOnEth(&models.EventNbaiOnEth{TxHash: vLog.TxHash.Hex(), BlockNo: vLog.BlockNumber}, "id desc", "10", "0")
 			if err != nil {
 				logs.GetLogger().Error(err)
 				continue
 			}
 			if len(eventList) <= 0 {
-				receiveMap := map[string]interface{}{}
-				err = paymentAbiString.UnpackIntoMap(receiveMap, "StateSynced", vLog.Data)
-				if err != nil {
-					logs.GetLogger().Error(err)
-					continue
-				}
-				var event = new(models.EventEth)
+				userWalletAddress := common.BytesToAddress(vLog.Data[32*5 : 32*6])
+				nbaiERC20Address := common.BytesToAddress(vLog.Data[32*6 : 32*7])
+
+				swapNbaiERC20ValueInBytes := vLog.Data[32*9 : 32*10]
+				swapNbaiERC20Value := new(big.Int)
+				swapNbaiERC20Value.SetBytes(swapNbaiERC20ValueInBytes)
+
+				var event = new(models.EventNbaiOnEth)
+				event.FromAddress = userWalletAddress.Hex()
 				event.BlockNo = vLog.BlockNumber
 				event.TxHash = vLog.TxHash.Hex()
-				event.ContractName = "SwanPayment"
+				event.ContractName = "NBAIERC20"
 				event.ContractAddress = contractAddress.String()
-				event.BytesData = receiveMap["data"].([]byte)
+				event.BytesData = vLog.Data
+				event.NBAIERC20AddressOnEth = nbaiERC20Address.Hex()
 				event.CreateAt = strconv.FormatInt(utils.GetEpochInMillis(), 10)
 				tx, _, err := ethclient.WebConn.ConnWeb.TransactionByHash(context.Background(), vLog.TxHash)
 				if err != nil {
 					logs.GetLogger().Error(err)
 				} else {
 					event.ToAddress = tx.To().Hex()
-					txMsg, err := tx.AsMessage(types.NewEIP155Signer(big.NewInt(999)), nil)
-					if err != nil {
-						logs.GetLogger().Error(err)
-					} else {
-						event.FromAddress = txMsg.From().Hex()
-					}
 				}
-
-				txInLog, _, _ := ethclient.WebConn.ConnWeb.TransactionByHash(context.Background(), vLog.TxHash)
-				if txInLog != nil {
-					quantity := new(big.Int)
-					quantity.SetBytes(txInLog.Value().Bytes())
-					event.Quantity = quantity.String()
-				}
-
+				event.Quantity = swapNbaiERC20Value.String()
 				err = database.SaveOne(event)
 				if err != nil {
 					logs.GetLogger().Error(err)
 					continue
 				}
 				logs.GetLogger().Info("*************************eth to bsc swaping start************************** ")
-				err = ChangEthToBnb(receiveMap["data"].([]byte), vLog.TxHash.Hex(), vLog.BlockNumber, 0)
+				err = ChangNBAIERC20OnEthToBnb(swapNbaiERC20ValueInBytes, vLog.TxHash.Hex(), vLog.BlockNumber, 0)
 				if err != nil {
 					logs.GetLogger().Error(err)
 					continue
@@ -120,4 +99,10 @@ func ScanEthEventFromChainAndSaveEventLogData(blockNoFrom, blockNoTo int64) erro
 		}
 	}
 	return nil
+}
+
+type LogTransfer struct {
+	From   common.Address
+	To     common.Address
+	Tokens *big.Int
 }
