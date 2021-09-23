@@ -3,6 +3,7 @@ package eth2bsc
 import (
 	"math/big"
 	"strconv"
+	"swap-scan/blockchain/browsersync/swaputil"
 	"swap-scan/blockchain/initclient/ethclient"
 	"swap-scan/common/constants"
 	"swap-scan/common/utils"
@@ -15,7 +16,7 @@ import (
 )
 
 func EthBlockBrowserSyncAndEventLogsSync() {
-	startScanBlockNo := getStartBlockNo()
+	startScanBlockNo := swaputil.GetStartBlockNo(constants.NETWORK_TYPE_ETH)
 
 	for {
 		var mutex sync.Mutex
@@ -92,27 +93,4 @@ func EthBlockBrowserSyncAndEventLogsSync() {
 		time.Sleep(time.Second * config.GetConfig().NbaiOnEthToBsc.CycleTimeInterval)
 		logs.GetLogger().Info("-------------------------eth----------------------------")
 	}
-}
-
-func getStartBlockNo() int64 {
-	var startScanBlockNo int64 = 1
-
-	if config.GetConfig().NbaiOnEthToBsc.StartFromBlockNo > 0 {
-		startScanBlockNo = config.GetConfig().NbaiOnEthToBsc.StartFromBlockNo
-	}
-
-	blockScanRecord := new(models2.BlockScanRecord)
-	whereCondition := "network_type='" + constants.NETWORK_TYPE_ETH + "'"
-	blockScanRecordList, err := blockScanRecord.FindLastCurrentBlockNumber(whereCondition)
-	if err != nil {
-		logs.GetLogger().Error(err)
-		startScanBlockNo = config.GetConfig().NbaiOnEthToBsc.StartFromBlockNo
-	}
-
-	if len(blockScanRecordList) > 0 {
-		if blockScanRecordList[0].LastCurrentBlockNumber > startScanBlockNo {
-			startScanBlockNo = blockScanRecordList[0].LastCurrentBlockNumber
-		}
-	}
-	return startScanBlockNo
 }

@@ -101,21 +101,22 @@ func ScanBSCEventFromChainAndSaveEventLogData(blockNoFrom, blockNoTo int64) erro
 						logs.GetLogger().Error(err)
 						continue
 					}
-					logs.GetLogger().Info("*************************bsc to nbai swaping start************************** ")
 					haveSwapped, err := models.CheckHaveSwapSuccess(vLog.TxHash.Hex())
 					if err != nil {
 						logs.GetLogger().Error(err)
 						continue
 					} else {
 						if !haveSwapped {
+							logs.GetLogger().Info("*************************bsc to nbai swaping start************************** ")
 							err = swapNbaiFromBscToNbai(vLog, vLog.BlockNumber, 0)
 							if err != nil {
 								logs.GetLogger().Error(err)
+								logs.GetLogger().Info("*************************bsc to nbai swaping end************************** ")
 								continue
 							}
+							logs.GetLogger().Info("*************************bsc to nbai swaping end************************** ")
 						}
 					}
-					logs.GetLogger().Info("*************************bsc to nbai swaping end************************** ")
 				}
 			}
 

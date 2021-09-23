@@ -4,7 +4,9 @@ import (
 	"github.com/gin-gonic/gin"
 	cors "github.com/itsjamie/gin-cors"
 	"github.com/joho/godotenv"
+	"swap-scan/blockchain/browsersync/bsc2nbai"
 	"swap-scan/blockchain/browsersync/eth2bsc"
+	"swap-scan/blockchain/browsersync/nbai2bsc"
 	"swap-scan/blockchain/initclient/bscclient"
 	"swap-scan/blockchain/initclient/ethclient"
 	"swap-scan/blockchain/initclient/nbaiclient"
@@ -24,12 +26,12 @@ func main() {
 
 	initMethod()
 
-	eth2bsc.EthBlockBrowserSyncAndEventLogsSync()
+	go eth2bsc.EthBlockBrowserSyncAndEventLogsSync()
 	//go schedule.RedoMappingSchedule()
 
-	//go bsc2nbai.BscBlockBrowserSyncAndEventLogsSync()
+	go bsc2nbai.BscBlockBrowserSyncAndEventLogsSync()
 
-	//go nbai2bsc.NbaiBlockBrowserSyncAndEventLogsSync()
+	go nbai2bsc.NbaiBlockBrowserSyncAndEventLogsSync()
 
 	defer func() {
 		err := db.Close()

@@ -33,6 +33,10 @@ chain_ID = 97  # mainnet 56 ;test net 97
 #child_chain_manage_contract_address = "0xFdE1bA95e90C394Cd2b08F27dc47977F69c1DB84"
 #gas_limit = 800000
 
+[eth_mainnet_node]
+rpc_url = "https://goerli.infura.io/v3/48f20ab65d0142c58e8e73658940a533"
+chain_ID = 5  # mainnet 56 ;test net 97
+
 
 [schedule_rule]
 nbai2bsc_mapping_redoRule = "0 */3 * * * ?"  #every minute
@@ -58,6 +62,17 @@ cycle_time_interval = 10 #unit:second
 scan_step = 2000
 #for nbai
 bsc_swap_to_nbai_contract_address = "0xF72c727a8Ad004e4fEEeEe73dfA8D63D493373Db"  # when event log scaned, to call this
+
+[nbai_on_eth_to_bsc]
+#for scan nbai event
+nbai_on_eth_to_bsc_event_contract_address = "0x60262C378645D4961501B31Dbb101cA47f2b86CD"  #for scan event
+nbai_on_eth_to_bsc_event_contract_event_function_signature = "0xa8133e3dab1689781429189302ba4b39d9a2ba21e28bdc487c2339c798393900"
+scan_step = 2000
+start_from_blockNo = 5539704
+cycle_time_interval = 10 #unit:second
+#for bsc
+eth_swap_to_bsc_contract_address = "0xFdE1bA95e90C394Cd2b08F27dc47977F69c1DB84"  # when event log scaned, to call this
+gas_limit = 800000
 
 
 

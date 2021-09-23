@@ -79,6 +79,9 @@ func ChangeNbaiToBnb(data []byte, txHashInNbai string, blockNo uint64, childChai
 			if txRecept.Status == uint64(1) {
 				if childChainTX.FromAddress != "" {
 					childChainTX.Status = constants.HTTP_STATUS_SUCCESS
+					logs.GetLogger().Println("swap success! txHash=" + tx.Hash().Hex())
+				} else {
+					logs.GetLogger().Println("swap failed! txHash=" + tx.Hash().Hex())
 				}
 				childChainTX.GasFeeUsed = strconv.FormatUint(txRecept.GasUsed, 10)
 			}

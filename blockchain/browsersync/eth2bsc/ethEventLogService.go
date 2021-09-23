@@ -121,9 +121,3 @@ func ScanEthEventFromChainAndSaveEventLogData(blockNoFrom, blockNoTo int64) erro
 	}
 	return nil
 }
-
-type LogTransfer struct {
-	From   common.Address
-	To     common.Address
-	Tokens *big.Int
-}
