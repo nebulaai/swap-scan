@@ -90,6 +90,9 @@ func swapNbaiFromBscToNbai(eventLog types.Log, blockNo uint64, childChainTractio
 		if txRecept.Status == uint64(1) {
 			if childChainTX.FromAddress != "" {
 				childChainTX.Status = constants.HTTP_STATUS_SUCCESS
+				logs.GetLogger().Println("swap success! txHash=" + tx.Hash().Hex())
+			} else {
+				logs.GetLogger().Println("swap failed! txHash=" + tx.Hash().Hex())
 			}
 			childChainTX.GasFeeUsed = strconv.FormatUint(txRecept.GasUsed, 10)
 		}
@@ -100,7 +103,6 @@ func swapNbaiFromBscToNbai(eventLog types.Log, blockNo uint64, childChainTractio
 
 	if len(txRecept.Logs) > 0 {
 		eventLogs := txRecept.Logs
-
 		childChainTX.BlockNoBsc = eventLogs[0].BlockNumber
 	}
 

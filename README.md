@@ -1,5 +1,7 @@
 # Nebula AI mainet token Swap scanner
-Monitoring the Swap envent on NBAI Mainet and trigger the swap to BSC Chain
+- Monitoring the Swap envent on NBAI Mainet and trigger the swap to BSC Chain
+- Monitoring the Swap envent on BSC Chain and trigger the swap to NBAI Mainet
+- Swap NBAI ERC20 Token from ETH Chain to Bsc Chain
 
 ## Mapping process
 The user sends a certain number of nbai tokens to the transfer contract deployed on the nbai blockchain <tr>
@@ -18,7 +20,9 @@ https://github.com/nebulaai/swap-scan.git
 
 * Create a .env file in the project root directory
 and enter the private key of your bsc blockchain wallet
-Input value like this:  privateKey=<< your wallet private key in bsc blockchain >>
+Input value like this:  <br>
+privateKeyForBscAdminWallet=<< your wallet private key in bsc blockchain >> <br>
+privateKeyForNbaiAdminWallet=<< your wallet private key in nbai blockchain >>  
 ```console
 cd $GOPATH/src/swan_scan
 vi  .env
@@ -53,7 +57,8 @@ chmod +x swan_scan
 |--------------------------|------------------|
 |block_scan_record         |record the block number that has been scanned to the blockchain|
 |event_nbai                |record eligible data on nbai            |
-|child_chain_transaction   |transaction that excuted mapping contract   |
+|event_bsc                 |record eligible data on bsc             |
+|swap_coin_transaction     |transaction that excuted mapping contract   |
 
 
 

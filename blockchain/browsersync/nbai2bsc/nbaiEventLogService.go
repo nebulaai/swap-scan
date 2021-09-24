@@ -37,7 +37,7 @@ func ScanNbaiEventFromChainAndSaveEventLogData(blockNoFrom, blockNoTo int64) err
 	}
 
 	//SwanPayment contract address
-	contractAddress := common.HexToAddress(config.GetConfig().NbaiToBsc.NbaiToBscEventTransferContractAddress)
+	contractAddress := common.HexToAddress(config.GetConfig().NbaiToBsc.NbaiToBscEventContractAddress)
 	//SwanPayment contract function signature
 	contractFunctionSignature := config.GetConfig().NbaiToBsc.NbaiToBscEventContractEventFunctionSignature
 
@@ -111,13 +111,22 @@ func ScanNbaiEventFromChainAndSaveEventLogData(blockNoFrom, blockNoTo int64) err
 					logs.GetLogger().Error(err)
 					continue
 				}
-				logs.GetLogger().Info("*************************nbai to bsc swaping start************************** ")
-				err = ChangeNbaiToBnb(receiveMap["data"].([]byte), vLog.TxHash.Hex(), vLog.BlockNumber, 0)
+				haveSwapped, err := models.CheckHaveSwapSuccess(vLog.TxHash.Hex())
 				if err != nil {
 					logs.GetLogger().Error(err)
 					continue
+				} else {
+					if !haveSwapped {
+						logs.GetLogger().Info("*************************nbai to bsc swaping start************************** ")
+						err = ChangeNbaiToBnb(receiveMap["data"].([]byte), vLog.TxHash.Hex(), vLog.BlockNumber, 0)
+						if err != nil {
+							logs.GetLogger().Error(err)
+							logs.GetLogger().Info("*************************nbai to bsc swaping end************************** ")
+							continue
+						}
+						logs.GetLogger().Info("*************************nbai to bsc swaping end************************** ")
+					}
 				}
-				logs.GetLogger().Info("*************************nbai to bsc swaping end************************** ")
 			}
 		}
 	}

@@ -1,10 +1,10 @@
-package nbai2bsc
+package eth2bsc
 
 import (
 	"math/big"
 	"strconv"
 	"swap-scan/blockchain/browsersync/swaputil"
-	"swap-scan/blockchain/initclient/nbaiclient"
+	"swap-scan/blockchain/initclient/ethclient"
 	"swap-scan/common/constants"
 	"swap-scan/common/utils"
 	"swap-scan/config"
@@ -15,8 +15,9 @@ import (
 	"time"
 )
 
-func NbaiBlockBrowserSyncAndEventLogsSync() {
-	startScanBlockNo := swaputil.GetStartBlockNo(constants.NETWORK_TYPE_NBAI)
+func EthBlockBrowserSyncAndEventLogsSync() {
+	startScanBlockNo := swaputil.GetStartBlockNo(constants.NETWORK_TYPE_ETH)
+
 	for {
 		var mutex sync.Mutex
 		mutex.Lock()
@@ -24,9 +25,9 @@ func NbaiBlockBrowserSyncAndEventLogsSync() {
 		var err error
 		var getBlockFlag bool = true
 		for getBlockFlag {
-			blockNoCurrent, err = nbaiclient.WebConn.GetBlockNumber()
+			blockNoCurrent, err = ethclient.WebConn.GetBlockNumber()
 			if err != nil {
-				nbaiclient.ClientInit()
+				ethclient.ClientInit()
 				logs.GetLogger().Error(err)
 				time.Sleep(5 * time.Second)
 				continue
@@ -37,28 +38,28 @@ func NbaiBlockBrowserSyncAndEventLogsSync() {
 		}
 
 		blockScanRecord := new(models2.BlockScanRecord)
-		whereCondition := "network_type='" + constants.NETWORK_TYPE_NBAI + "'"
+		whereCondition := "network_type='" + constants.NETWORK_TYPE_ETH + "'"
 		blockScanRecordList, err := blockScanRecord.FindLastCurrentBlockNumber(whereCondition)
 		if err != nil {
 			logs.GetLogger().Error(err)
-			startScanBlockNo = config.GetConfig().NbaiToBsc.StartFromBlockNo
+			startScanBlockNo = config.GetConfig().NbaiOnEthToBsc.StartFromBlockNo
 		}
 		if len(blockScanRecordList) > 0 {
 			if blockScanRecordList[0].LastCurrentBlockNumber <= blockNoCurrent.Int64() {
 				startScanBlockNo = blockScanRecordList[0].LastCurrentBlockNumber
 			} else {
-				startScanBlockNo = config.GetConfig().NbaiToBsc.StartFromBlockNo
+				startScanBlockNo = config.GetConfig().NbaiOnEthToBsc.StartFromBlockNo
 			}
 			blockScanRecord.ID = blockScanRecordList[0].ID
 		}
 
 		for {
 			start := startScanBlockNo
-			end := start + config.GetConfig().NbaiToBsc.ScanStep
+			end := start + config.GetConfig().NbaiOnEthToBsc.ScanStep
 			if startScanBlockNo > blockNoCurrent.Int64() {
 				break
 			}
-			err = ScanNbaiEventFromChainAndSaveEventLogData(start, end)
+			err = ScanEthEventFromChainAndSaveEventLogData(start, end)
 			if err != nil {
 				logs.GetLogger().Error(err)
 				time.Sleep(time.Second * 1)
@@ -71,7 +72,7 @@ func NbaiBlockBrowserSyncAndEventLogsSync() {
 				blockScanRecord.LastCurrentBlockNumber = end
 			}
 
-			blockScanRecord.NetworkType = constants.NETWORK_TYPE_NBAI
+			blockScanRecord.NetworkType = constants.NETWORK_TYPE_ETH
 			blockScanRecord.UpdateAt = strconv.FormatInt(utils.GetEpochInMillis(), 10)
 
 			err = database.SaveOne(blockScanRecord)
@@ -89,7 +90,7 @@ func NbaiBlockBrowserSyncAndEventLogsSync() {
 		getBlockFlag = true
 		mutex.Unlock()
 
-		time.Sleep(time.Second * config.GetConfig().NbaiToBsc.CycleTimeInterval)
-		logs.GetLogger().Info("-------------------------nbai----------------------------")
+		time.Sleep(time.Second * config.GetConfig().NbaiOnEthToBsc.CycleTimeInterval)
+		logs.GetLogger().Info("-------------------------eth----------------------------")
 	}
 }

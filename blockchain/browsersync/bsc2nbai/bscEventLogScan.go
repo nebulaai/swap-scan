@@ -3,6 +3,7 @@ package bsc2nbai
 import (
 	"math/big"
 	"strconv"
+	"swap-scan/blockchain/browsersync/swaputil"
 	"swap-scan/blockchain/initclient/bscclient"
 	"swap-scan/common/constants"
 	"swap-scan/common/utils"
@@ -15,8 +16,7 @@ import (
 )
 
 func BscBlockBrowserSyncAndEventLogsSync() {
-	startScanBlockNo := getStartBlockNo()
-
+	startScanBlockNo := swaputil.GetStartBlockNo(constants.NETWORK_TYPE_BSC)
 	for {
 		var mutex sync.Mutex
 		mutex.Lock()
@@ -91,27 +91,4 @@ func BscBlockBrowserSyncAndEventLogsSync() {
 
 		time.Sleep(time.Second * config.GetConfig().BscToNbai.CycleTimeInterval)
 	}
-}
-
-func getStartBlockNo() int64 {
-	var startScanBlockNo int64 = 1
-
-	if config.GetConfig().BscToNbai.StartFromBlockNo > 0 {
-		startScanBlockNo = config.GetConfig().BscToNbai.StartFromBlockNo
-	}
-
-	blockScanRecord := new(models2.BlockScanRecord)
-	whereCondition := "network_type='" + constants.NETWORK_TYPE_BSC + "'"
-	blockScanRecordList, err := blockScanRecord.FindLastCurrentBlockNumber(whereCondition)
-	if err != nil {
-		logs.GetLogger().Error(err)
-		startScanBlockNo = config.GetConfig().BscToNbai.StartFromBlockNo
-	}
-
-	if len(blockScanRecordList) > 0 {
-		if blockScanRecordList[0].LastCurrentBlockNumber > startScanBlockNo {
-			startScanBlockNo = blockScanRecordList[0].LastCurrentBlockNumber
-		}
-	}
-	return startScanBlockNo
 }
