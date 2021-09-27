@@ -53,46 +53,56 @@ func ChangNBAIERC20OnEthToBnb(data []byte, txHashInNbai string, blockNo uint64, 
 
 	childChainTX := new(models.SwapCoinTransaction)
 	childChainTX.Status = constants.TRANSACTION_STATUS_FAIL
-	tx, err := childInstance.OnStateReceive(callOpts, big.NewInt(int64(1)), data)
-	if err != nil {
-		logs.GetLogger().Error(err)
-		childChainTX.Status = constants.TRANSACTION_STATUS_FAIL
-		childChainTX.TxHashTo = ""
-		childChainTX.Status = constants.TRANSACTION_STATUS_FAIL
-	} else {
-		childChainTX.TxHashTo = tx.Hash().Hex()
-		childChainTX.Status = constants.TRANSACTION_STATUS_SUCCESS
-	}
-
-	if err == nil {
-		txMsg, err := tx.AsMessage(types.NewEIP155Signer(big.NewInt(config.GetConfig().BscMainnetNode.ChainID)), nil)
+	if swapValue.Sign() > 0 {
+		tx, err := childInstance.OnStateReceive(callOpts, big.NewInt(int64(1)), data)
 		if err != nil {
 			logs.GetLogger().Error(err)
-		}
-		if err == nil {
-			childChainTX.ToAddress = tx.To().Hex()
-			childChainTX.FromAddress = txMsg.From().Hex()
-		}
-		txReicept, err := utils.CheckTx(bscclient.WebConn.ConnWeb, tx)
-		if err != nil {
-			logs.GetLogger().Error(err)
+			childChainTX.TxHashTo = ""
+			childChainTX.Status = constants.TRANSACTION_STATUS_FAIL
 		} else {
-			if txReicept.Status == uint64(1) {
-				if childChainTX.FromAddress != "" {
-					childChainTX.Status = constants.HTTP_STATUS_SUCCESS
-					logs.GetLogger().Println("swap success! txHash=" + tx.Hash().Hex())
-				} else {
-					logs.GetLogger().Println("swap failed! txHash=" + tx.Hash().Hex())
+			childChainTX.TxHashTo = tx.Hash().Hex()
+			childChainTX.Status = constants.TRANSACTION_STATUS_SUCCESS
+		}
+
+		if err == nil {
+			txMsg, err := tx.AsMessage(types.NewEIP155Signer(big.NewInt(config.GetConfig().BscMainnetNode.ChainID)), nil)
+			if err != nil {
+				logs.GetLogger().Error(err)
+			}
+			if err == nil {
+				childChainTX.ToAddress = tx.To().Hex()
+				childChainTX.FromAddress = txMsg.From().Hex()
+			}
+			txReicept, err := utils.CheckTx(bscclient.WebConn.ConnWeb, tx)
+			if err != nil {
+				logs.GetLogger().Error(err)
+			} else {
+				if txReicept.Status == uint64(1) {
+					if childChainTX.FromAddress != "" {
+						childChainTX.Status = constants.HTTP_STATUS_SUCCESS
+						childChainTX.BlockNoBsc = txReicept.BlockNumber.Uint64()
+						logs.GetLogger().Println("swap success! txHash=" + tx.Hash().Hex())
+					} else {
+						logs.GetLogger().Println("swap failed! txHash=" + tx.Hash().Hex())
+					}
+					childChainTX.GasFeeUsed = strconv.FormatUint(txReicept.GasUsed, 10)
 				}
-				childChainTX.GasFeeUsed = strconv.FormatUint(txReicept.GasUsed, 10)
 			}
 		}
+		childChainTX.Quantity = swapValue.String()
+	} else {
+		childChainTX.Status = constants.TRANSACTION_STATUS_SUCCESS
+		childChainTX.TxHashTo = constants.TX_HASH_NIL_VALUE
+		childChainTX.ToAddress = constants.WALLET_NIL_VALUE
+		childChainTX.GasFeeUsed = "0"
+		feeValue, _ := new(big.Int).SetString(config.GetConfig().NbaiOnEthToBsc.HandlingFee+constants.ZERO_18, 10)
+		childChainTX.Quantity = swapValue.Add(swapValue, feeValue).String()
 	}
 
 	if childChainTractionID > 0 {
 		childChainTX.ID = childChainTractionID
 	}
-	childChainTX.Quantity = swapValue.String()
+
 	fromNetwork, _ := models.GetNetworkInfoByUUID(constants.NETWORK_INFO_UUID_FOR_ETH)
 	childChainTX.FromNetwork = fromNetwork.ID
 	toNetwork, _ := models.GetNetworkInfoByUUID(constants.NETWORK_INFO_UUID_FOR_BSC)

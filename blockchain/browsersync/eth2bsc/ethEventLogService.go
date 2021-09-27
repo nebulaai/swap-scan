@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"strings"
 	"swap-scan/blockchain/initclient/ethclient"
+	"swap-scan/common/constants"
 	"swap-scan/common/utils"
 	"swap-scan/config"
 	"swap-scan/database"
@@ -69,14 +70,18 @@ func ScanEthEventFromChainAndSaveEventLogData(blockNoFrom, blockNoTo int64) erro
 			if len(eventList) <= 0 {
 				receiveMap := map[string]interface{}{}
 				err = stateSendABI.UnpackIntoMap(receiveMap, "StateSynced", vLog.Data)
-
 				userWalletAddress := common.BytesToAddress(vLog.Data[32*5 : 32*6])
 				nbaiERC20Address := common.BytesToAddress(vLog.Data[32*6 : 32*7])
-				//depositeType := vLog.Data[32*2 : 32*3]
 
 				swapNbaiERC20ValueInBytes := vLog.Data[32*9 : 32*10]
 				swapNbaiERC20Value := new(big.Int)
 				swapNbaiERC20Value.SetBytes(swapNbaiERC20ValueInBytes)
+				feeValue, _ := new(big.Int).SetString(config.GetConfig().NbaiOnEthToBsc.HandlingFee+constants.ZERO_18, 10)
+				swapNbaiERC20Value.Sub(swapNbaiERC20Value, feeValue)
+				arr := receiveMap["data"].([]byte)[0 : len(receiveMap["data"].([]byte))-32]
+				finalArray := utils.AddZeroToTheFrontOfTheArray(swapNbaiERC20Value.Bytes(), 32-len(swapNbaiERC20Value.Bytes()))
+				arr = append(arr, finalArray...)
+				receiveMap["data"] = arr
 
 				var event = new(models.EventNbaiOnEth)
 				event.FromAddress = userWalletAddress.Hex()

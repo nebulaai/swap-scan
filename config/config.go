@@ -72,6 +72,7 @@ type NbaiOnEthToBsc struct {
 	NbaiOnEthToBscEventContractAddress                string        `toml:"nbai_on_eth_to_bsc_event_contract_address"` // for scan event
 	NbaiOnEthToBscEventContractEventFunctionSignature string        `toml:"nbai_on_eth_to_bsc_event_contract_event_function_signature"`
 	EthSwapToBscContractAddress                       string        `toml:"eth_swap_to_bsc_contract_address"`
+	HandlingFee                                       string        `toml:"handling_fee"`
 }
 
 type ScheduleRule struct {

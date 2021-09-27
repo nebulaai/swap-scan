@@ -115,3 +115,12 @@ func EncodeToBytes(p interface{}) ([]byte, error) {
 	}
 	return buf.Bytes(), nil
 }
+
+func AddZeroToTheFrontOfTheArray(arr []byte, zeroNo int) []byte {
+	var zeroArr []byte
+	for i := 0; i < zeroNo; i++ {
+		zeroArr = append(zeroArr, 0)
+	}
+	arr = append(zeroArr, arr...)
+	return arr
+}
