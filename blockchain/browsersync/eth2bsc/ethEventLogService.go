@@ -2,7 +2,6 @@ package eth2bsc
 
 import (
 	"context"
-	"fmt"
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
@@ -11,6 +10,7 @@ import (
 	"strconv"
 	"strings"
 	"swap-scan/blockchain/initclient/ethclient"
+	"swap-scan/common/constants"
 	"swap-scan/common/utils"
 	"swap-scan/config"
 	"swap-scan/database"
@@ -70,35 +70,18 @@ func ScanEthEventFromChainAndSaveEventLogData(blockNoFrom, blockNoTo int64) erro
 			if len(eventList) <= 0 {
 				receiveMap := map[string]interface{}{}
 				err = stateSendABI.UnpackIntoMap(receiveMap, "StateSynced", vLog.Data)
-
 				userWalletAddress := common.BytesToAddress(vLog.Data[32*5 : 32*6])
 				nbaiERC20Address := common.BytesToAddress(vLog.Data[32*6 : 32*7])
-				//depositeType := vLog.Data[32*2 : 32*3]
 
-				fmt.Println(vLog.Data[32*9 : 32*10])
-				fmt.Println(len(receiveMap["data"].([]byte)))
 				swapNbaiERC20ValueInBytes := vLog.Data[32*9 : 32*10]
 				swapNbaiERC20Value := new(big.Int)
 				swapNbaiERC20Value.SetBytes(swapNbaiERC20ValueInBytes)
-				fmt.Println(receiveMap["data"].([]byte)[len(receiveMap["data"].([]byte))-32 : len(receiveMap["data"].([]byte))])
-				feeValue, _ := new(big.Int).SetString("100000000000000000000", 10)
+				feeValue, _ := new(big.Int).SetString(config.GetConfig().NbaiOnEthToBsc.HandlingFee+constants.ZERO_18, 10)
 				swapNbaiERC20Value.Sub(swapNbaiERC20Value, feeValue)
-				fmt.Println(swapNbaiERC20Value.Bytes())
 				arr := receiveMap["data"].([]byte)[0 : len(receiveMap["data"].([]byte))-32]
-				zeroArray := []byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
-				zeroArray = append(zeroArray, swapNbaiERC20Value.Bytes()...)
-				fmt.Println(zeroArray)
-				arr = append(arr, zeroArray...)
+				finalArray := utils.AddZeroToTheFrontOfTheArray(swapNbaiERC20Value.Bytes(), 32-len(swapNbaiERC20Value.Bytes()))
+				arr = append(arr, finalArray...)
 				receiveMap["data"] = arr
-				fmt.Println(len(receiveMap["data"].([]byte)))
-				fmt.Println(receiveMap["data"].([]byte)[len(receiveMap["data"].([]byte))-32 : len(receiveMap["data"].([]byte))])
-				fmt.Println(new(big.Int).SetBytes(receiveMap["data"].([]byte)[len(receiveMap["data"].([]byte))-32 : len(receiveMap["data"].([]byte))]))
-				fmt.Println(vLog.Data[32*9 : 32*10])
-
-				//10000000000000000000
-				//110000000000000000000
-				//100000000000000000000
-				//9223372036854775808
 
 				var event = new(models.EventNbaiOnEth)
 				event.FromAddress = userWalletAddress.Hex()
