@@ -63,6 +63,7 @@ type BscToNbai struct {
 	BscToNbaiEventContractAddress                string        `toml:"bsc_to_nbai_event_contract_address"` // for scan event
 	BscToNbaiEventContractEventFunctionSignature string        `toml:"bsc_to_nbai_event_contract_event_function_signature"`
 	BscSwapToNbaiContractAddress                 string        `toml:"bsc_swap_to_nbai_contract_address"`
+	HandlingFee                                  string        `toml:"handling_fee"`
 }
 
 type NbaiOnEthToBsc struct {
@@ -126,8 +127,9 @@ func requiredFieldsAreGiven(metaData toml.MetaData) bool {
 		{"bsc_to_nbai", "start_from_blockNo"},
 		{"bsc_to_nbai", "cycle_time_interval"},
 		{"bsc_to_nbai", "scan_step"},
+		{"bsc_to_nbai", "handling_fee"},
 
-		{"schedule_rule", "nbai2bsc_mapping_redoRule"},
+		{"nbai_on_eth_to_bsc", "handling_fee"},
 	}
 
 	for _, v := range requiredFields {

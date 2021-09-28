@@ -58,7 +58,7 @@ retry:
 	rp, err := client.TransactionReceipt(context.Background(), tx.Hash())
 	if err != nil {
 		if err == ethereum.NotFound {
-			logs.GetLogger().Error("tx %v not found, check it later", tx.Hash().String())
+			logs.GetLogger().Error("tx %v not found, check it later ", tx.Hash().String())
 			time.Sleep(1 * time.Second)
 			goto retry
 		} else {
