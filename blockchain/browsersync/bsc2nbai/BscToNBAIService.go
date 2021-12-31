@@ -39,8 +39,17 @@ func swapNbaiFromBscToNbai(eventLog types.Log, blockNo uint64, childChainTractio
 	if strings.HasPrefix(strings.ToLower(pk), "0x") {
 		pk = pk[2:]
 	}
-	privateKey, _ := crypto.HexToECDSA(pk)
-	callOpts, _ := bind.NewKeyedTransactorWithChainID(privateKey, big.NewInt(config.GetConfig().NbaiMainnetNode.ChainID))
+	privateKey, err := crypto.HexToECDSA(pk)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return err
+	}
+	chainId, err := client.ChainID(context.Background())
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return err
+	}
+	callOpts, _ := bind.NewKeyedTransactorWithChainID(privateKey, chainId)
 
 	callOpts.Nonce = big.NewInt(int64(nonce))
 	callOpts.GasPrice = gasPrice
@@ -83,7 +92,7 @@ func swapNbaiFromBscToNbai(eventLog types.Log, blockNo uint64, childChainTractio
 		}
 
 		if err == nil {
-			txMsg, err := tx.AsMessage(types.NewEIP155Signer(big.NewInt(config.GetConfig().NbaiMainnetNode.ChainID)), nil)
+			txMsg, err := tx.AsMessage(types.NewEIP155Signer(chainId), nil)
 			if err != nil {
 				logs.GetLogger().Error(err)
 			}

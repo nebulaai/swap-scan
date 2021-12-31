@@ -32,18 +32,15 @@ type database struct {
 }
 
 type NbaiMainnetNode struct {
-	RpcUrl  string `toml:"rpc_url"`
-	ChainID int64  `toml:"chain_ID"`
+	RpcUrl string `toml:"rpc_url"`
 }
 
 type BscMainnetNode struct {
-	RpcUrl  string `toml:"rpc_url"`
-	ChainID int64  `toml:"chain_ID"`
+	RpcUrl string `toml:"rpc_url"`
 }
 
 type EthMainnetNode struct {
-	RpcUrl  string `toml:"rpc_url"`
-	ChainID int64  `toml:"chain_ID"`
+	RpcUrl string `toml:"rpc_url"`
 }
 
 type NbaiToBsc struct {

@@ -15,7 +15,7 @@ db_args="charset=utf8mb4&parseTime=True&loc=Local"
 
 [nbai_mainnet_node]
 rpc_url = ""
-chain_ID = 999
+
 
 #payment_contract_address = ""
 #contract_function_signature = ""
@@ -26,7 +26,6 @@ chain_ID = 999
 
 [bsc_mainnet_node]
 rpc_url = "https://data-seed-prebsc-1-s1.binance.org:8545/"
-chain_ID = 97  # mainnet 56 ;test net 97
 #rpc_url = ""
 #rpc_url = "https://bsc-dataseed.binance.org/"
 #bsc_admin_wallet = ""
@@ -35,7 +34,6 @@ chain_ID = 97  # mainnet 56 ;test net 97
 
 [eth_mainnet_node]
 rpc_url = ""
-chain_ID = 5  # mainnet 56 ;test net 97
 
 
 [schedule_rule]

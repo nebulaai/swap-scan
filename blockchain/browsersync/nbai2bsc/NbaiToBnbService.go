@@ -39,8 +39,21 @@ func ChangeNbaiToBnb(data []byte, txHashInNbai string, blockNo uint64, childChai
 		pk = pk[2:]
 	}
 
-	privateKey, _ := crypto.HexToECDSA(pk)
-	callOpts, _ := bind.NewKeyedTransactorWithChainID(privateKey, big.NewInt(config.GetConfig().BscMainnetNode.ChainID))
+	privateKey, err := crypto.HexToECDSA(pk)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return err
+	}
+	chainId, err := client.ChainID(context.Background())
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return err
+	}
+	callOpts, err := bind.NewKeyedTransactorWithChainID(privateKey, chainId)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return err
+	}
 
 	//callOpts := new(bind.TransactOpts)
 	callOpts.Nonce = big.NewInt(int64(nonce))
@@ -64,7 +77,7 @@ func ChangeNbaiToBnb(data []byte, txHashInNbai string, blockNo uint64, childChai
 		childChainTX.Status = constants.TRANSACTION_STATUS_SUCCESS
 	}
 	if err == nil {
-		txMsg, err := tx.AsMessage(types.NewEIP155Signer(big.NewInt(config.GetConfig().BscMainnetNode.ChainID)), nil)
+		txMsg, err := tx.AsMessage(types.NewEIP155Signer(chainId), nil)
 		if err != nil {
 			logs.GetLogger().Error(err)
 		}

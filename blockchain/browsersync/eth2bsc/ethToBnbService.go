@@ -39,8 +39,17 @@ func ChangNBAIERC20OnEthToBnb(data []byte, txHashInNbai string, blockNo uint64, 
 		pk = pk[2:]
 	}
 
-	privateKey, _ := crypto.HexToECDSA(pk)
-	callOpts, _ := bind.NewKeyedTransactorWithChainID(privateKey, big.NewInt(config.GetConfig().BscMainnetNode.ChainID))
+	privateKey, err := crypto.HexToECDSA(pk)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return err
+	}
+	chainId, err := client.ChainID(context.Background())
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return err
+	}
+	callOpts, _ := bind.NewKeyedTransactorWithChainID(privateKey, chainId)
 
 	//callOpts := new(bind.TransactOpts)
 	callOpts.Nonce = big.NewInt(int64(nonce))
@@ -65,7 +74,7 @@ func ChangNBAIERC20OnEthToBnb(data []byte, txHashInNbai string, blockNo uint64, 
 		}
 
 		if err == nil {
-			txMsg, err := tx.AsMessage(types.NewEIP155Signer(big.NewInt(config.GetConfig().BscMainnetNode.ChainID)), nil)
+			txMsg, err := tx.AsMessage(types.NewEIP155Signer(chainId), nil)
 			if err != nil {
 				logs.GetLogger().Error(err)
 			}
