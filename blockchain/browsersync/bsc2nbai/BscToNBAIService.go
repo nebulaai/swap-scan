@@ -49,7 +49,11 @@ func swapNbaiFromBscToNbai(eventLog types.Log, blockNo uint64, childChainTractio
 		logs.GetLogger().Error(err)
 		return err
 	}
-	callOpts, _ := bind.NewKeyedTransactorWithChainID(privateKey, chainId)
+	callOpts, err := bind.NewKeyedTransactorWithChainID(privateKey, chainId)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return err
+	}
 
 	callOpts.Nonce = big.NewInt(int64(nonce))
 	callOpts.GasPrice = gasPrice

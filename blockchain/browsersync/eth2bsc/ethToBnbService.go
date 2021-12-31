@@ -49,7 +49,11 @@ func ChangNBAIERC20OnEthToBnb(data []byte, txHashInNbai string, blockNo uint64, 
 		logs.GetLogger().Error(err)
 		return err
 	}
-	callOpts, _ := bind.NewKeyedTransactorWithChainID(privateKey, chainId)
+	callOpts, err := bind.NewKeyedTransactorWithChainID(privateKey, chainId)
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return err
+	}
 
 	//callOpts := new(bind.TransactOpts)
 	callOpts.Nonce = big.NewInt(int64(nonce))
