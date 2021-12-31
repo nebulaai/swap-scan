@@ -1,7 +1,7 @@
 port="8888"
 dev = true
-bsc_admin_wallet = "0x05856015d07F3E24936B7D20cB3CcfCa3D34B41d"
-nbai_admin_wallet = "0x05856015d07F3E24936B7D20cB3CcfCa3D34B41d"
+bsc_admin_wallet = ""
+nbai_admin_wallet = ""
 
 
 
@@ -14,11 +14,11 @@ db_pwd="123456"
 db_args="charset=utf8mb4&parseTime=True&loc=Local"
 
 [nbai_mainnet_node]
-rpc_url = "https://api.nbai.io/"
+rpc_url = ""
 chain_ID = 999
 
-#payment_contract_address = "0xf548dcEa387a037eEBDE6d5D18c67650E3a3d761"
-#contract_function_signature = "0xa8133e3dab1689781429189302ba4b39d9a2ba21e28bdc487c2339c798393900"
+#payment_contract_address = ""
+#contract_function_signature = ""
 #scan_step = 2000
 #start_from_blockNo = 6990651
 #cycle_time_interval = 10 #unit:second
@@ -27,10 +27,10 @@ chain_ID = 999
 [bsc_mainnet_node]
 rpc_url = "https://data-seed-prebsc-1-s1.binance.org:8545/"
 chain_ID = 97  # mainnet 56 ;test net 97
-#rpc_url = "http://192.168.88.121:8545/"
+#rpc_url = ""
 #rpc_url = "https://bsc-dataseed.binance.org/"
-#bsc_admin_wallet = "0x05856015d07F3E24936B7D20cB3CcfCa3D34B41d"
-#child_chain_manage_contract_address = "0xFdE1bA95e90C394Cd2b08F27dc47977F69c1DB84"
+#bsc_admin_wallet = ""
+#child_chain_manage_contract_address = ""
 #gas_limit = 800000
 
 [eth_mainnet_node]
@@ -43,36 +43,36 @@ nbai2bsc_mapping_redoRule = "0 */3 * * * ?"  #every minute
 
 [nbai_to_bsc]
 #for scan nbai event
-nbai_to_bsc_event_contract_address = "0xf548dcEa387a037eEBDE6d5D18c67650E3a3d761"  #for scan event
-nbai_to_bsc_event_contract_event_function_signature = "0xa8133e3dab1689781429189302ba4b39d9a2ba21e28bdc487c2339c798393900"
+nbai_to_bsc_event_contract_address = ""  #for scan event
+nbai_to_bsc_event_contract_event_function_signature = ""
 scan_step = 2000
 start_from_blockNo = 7043090
 cycle_time_interval = 10 #unit:second
 #for bsc
-nbai_swap_to_bsc_contract_address = "0xFdE1bA95e90C394Cd2b08F27dc47977F69c1DB84"  # when event log scaned, to call this
+nbai_swap_to_bsc_contract_address = ""  # when event log scaned, to call this
 gas_limit = 800000
 
 
 [bsc_to_nbai]
 #for scan bsc event
-bsc_to_nbai_event_contract_address = "0xd5dc6B99ABf998050302A6f635176319f911B2BB" #for scan event
-bsc_to_nbai_event_contract_event_function_signature = "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"
+bsc_to_nbai_event_contract_address = "" #for scan event
+bsc_to_nbai_event_contract_event_function_signature = ""
 start_from_blockNo = 12391227
 cycle_time_interval = 10 #unit:second
 scan_step = 2000
 #for nbai
-bsc_swap_to_nbai_contract_address = "0xF72c727a8Ad004e4fEEeEe73dfA8D63D493373Db"  # when event log scaned, to call this
+bsc_swap_to_nbai_contract_address = ""  # when event log scaned, to call this
 
 [nbai_on_eth_to_bsc]
 #for scan nbai event
-nbai_on_eth_to_bsc_event_contract_address = "0x60262C378645D4961501B31Dbb101cA47f2b86CD"  #for scan event
-nbai_on_eth_to_bsc_event_contract_event_function_signature = "0xa8133e3dab1689781429189302ba4b39d9a2ba21e28bdc487c2339c798393900"
+nbai_on_eth_to_bsc_event_contract_address = ""  #for scan event
+nbai_on_eth_to_bsc_event_contract_event_function_signature = ""
 scan_step = 2000
 start_from_blockNo = 5555946
 cycle_time_interval = 10 #unit:second
 #for bsc
 handling_fee = "100" # uinit:nbai
-eth_swap_to_bsc_contract_address = "0xFdE1bA95e90C394Cd2b08F27dc47977F69c1DB84"  # when event log scaned, to call this
+eth_swap_to_bsc_contract_address = ""  # when event log scaned, to call this
 gas_limit = 800000
 
 
