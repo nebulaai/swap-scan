@@ -58,6 +58,11 @@ func ScanBSCEventFromChainAndSaveEventLogData(blockNoFrom, blockNoTo int64) erro
 			flag = false
 		}
 	}
+	chainId, err := bscclient.WebConn.ConnWeb.ChainID(context.Background())
+	if err != nil {
+		logs.GetLogger().Error(err)
+		return err
+	}
 
 	for _, vLog := range logsInChain {
 		if vLog.Topics[0].Hex() == contractFunctionSignature {
@@ -89,7 +94,7 @@ func ScanBSCEventFromChainAndSaveEventLogData(blockNoFrom, blockNoTo int64) erro
 						logs.GetLogger().Error(err)
 					} else {
 						event.ToAddress = tx.To().Hex()
-						txMsg, err := tx.AsMessage(types.NewEIP155Signer(big.NewInt(config.GetConfig().BscMainnetNode.ChainID)), nil)
+						txMsg, err := tx.AsMessage(types.NewEIP155Signer(chainId), nil)
 						if err != nil {
 							logs.GetLogger().Error(err)
 						} else {
