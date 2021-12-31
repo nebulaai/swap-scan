@@ -11,9 +11,9 @@ dbPwd="123456"
 dbArgs="charset=utf8mb4&parseTime=True&loc=Local"
 
 [NbaiMainnetNode]
-rpcUrl = "https://api.nbai.io/"
-paymentContractAddress = "0x60a43A2d57E79938b8dF8652d86D1b3A2132CBcE"
-contractFunctionSignature = "0xa8133e3dab1689781429189302ba4b39d9a2ba21e28bdc487c2339c798393900"
+rpcUrl = ""
+paymentContractAddress = ""
+contractFunctionSignature = ""
 scanStep = 2000
 startFromBlockNo = 6925072
 cycleTimeInterval = 10 #unit:second
@@ -21,15 +21,14 @@ cycleTimeInterval = 10 #unit:second
 
 [BscMainnetNode]
 rpcUrl = "https://data-seed-prebsc-1-s1.binance.org:8545/"
-#rpcUrl = "http://192.168.88.121:8545/"
 #rpcUrl = "https://bsc-dataseed.binance.org/"
-bscAdminWallet = "0xc4fcaAdCb0b00a9501e56215c37B10fAF9e79c0a"
-#bscAdminWallet = "0x05856015d07F3E24936B7D20cB3CcfCa3D34B41d"
-childChainManageContractAddress = "0xa1A58C82bA4a0D8e856D8fad76bB72b04fd9736b"
+bscAdminWallet = ""
+#bscAdminWallet = ""
+childChainManageContractAddress = ""
 gasLimit = 800000
 chainID = 97  # mainnet 56 ;test net 97
-paymentContractAddress = "0x4e2eB289A6e22eb6BBB78d4379aCd27c6BD87001"
-contractFunctionSignature = "0x88e2ea3170ebb5d73f832e672e27a855b3daf0b2264ac6c09b04009dc151509e"
+paymentContractAddress = ""
+contractFunctionSignature = ""
 scanStep = 2000
 startFromBlockNo = 12050113
 cycleTimeInterval = 10 #unit:second
