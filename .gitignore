@@ -1,8 +1,9 @@
 # Directories potentially created
 build/
-develop-eggs/
 dist/
 
+
+# Django stuff:
 *.log
 target/
 
@@ -14,7 +15,6 @@ target/
 
 
 # Environments
-config.toml
 .env
 .venv
 env/
@@ -37,6 +37,12 @@ venv.bak/
 *.out
 .idea
 .idea/
+.idea/
+./on-chain/node_modules/
+./on-chain/artifacts/
+./on-chain/cache/
+config.toml
+config_*.toml
 
 # The project's config file
 config.toml
