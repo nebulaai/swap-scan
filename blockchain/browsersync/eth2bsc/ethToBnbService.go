@@ -91,8 +91,9 @@ func ChangNBAIERC20OnEthToBnb(data []byte, txHashInNbai string, blockNo uint64, 
 		}
 		childChainTX.Quantity = swapValue.String()
 	} else {
+		logs.GetLogger().Println("The balance is less than 100NBAI, no transfer operation has occurred")
 		childChainTX.Status = constants.TRANSACTION_STATUS_SUCCESS
-		childChainTX.TxHashTo = constants.TX_HASH_NIL_VALUE
+		childChainTX.TxHashTo = constants.TX_HASH_NIL_VALUE_FOR_CHARGED
 		childChainTX.ToAddress = constants.WALLET_NIL_VALUE
 		childChainTX.GasFeeUsed = "0"
 		feeValue, _ := new(big.Int).SetString(config.GetConfig().NbaiOnEthToBsc.HandlingFee+constants.ZERO_18, 10)

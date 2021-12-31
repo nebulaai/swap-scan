@@ -3,6 +3,7 @@ package bsc2nbai
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
@@ -41,14 +42,10 @@ func swapNbaiFromBscToNbai(eventLog types.Log, blockNo uint64, childChainTractio
 	privateKey, _ := crypto.HexToECDSA(pk)
 	callOpts, _ := bind.NewKeyedTransactorWithChainID(privateKey, big.NewInt(config.GetConfig().NbaiMainnetNode.ChainID))
 
-	//callOpts := new(bind.TransactOpts)
 	callOpts.Nonce = big.NewInt(int64(nonce))
 	callOpts.GasPrice = gasPrice
 	callOpts.GasLimit = config.GetConfig().NbaiToBsc.GasLimit
 	callOpts.Context = context.Background()
-
-	/*childManagerAddress := common.HexToAddress(config.GetConfig().BscToNbai.BscSwapToNbaiContractAddress)
-	childInstance, _ := goBind.NewChildChainManagerContract(childManagerAddress, client)*/
 
 	rootManagerAddress := common.HexToAddress(config.GetConfig().BscToNbai.BscSwapToNbaiContractAddress)
 	rootInstance, _ := goBind.NewRootChainManagerContract(rootManagerAddress, client)
@@ -56,67 +53,84 @@ func swapNbaiFromBscToNbai(eventLog types.Log, blockNo uint64, childChainTractio
 	childChainTX := new(models.SwapCoinTransaction)
 	childChainTX.Status = constants.TRANSACTION_STATUS_FAIL
 
-	var buff bytes.Buffer
-	err = eventLog.EncodeRLP(&buff)
-	if err != nil {
-		logs.GetLogger().Error(err)
-	}
-
-	tx, err := rootInstance.Exit(callOpts, buff.Bytes())
-	if err != nil {
-		logs.GetLogger().Error(err)
-		childChainTX.Status = constants.TRANSACTION_STATUS_FAIL
-		childChainTX.TxHashTo = ""
-		childChainTX.Status = constants.TRANSACTION_STATUS_FAIL
-	} else {
-		childChainTX.TxHashTo = tx.Hash().Hex()
-		childChainTX.Status = constants.TRANSACTION_STATUS_SUCCESS
-	}
-
-	if err == nil {
-		txMsg, err := tx.AsMessage(types.NewEIP155Signer(big.NewInt(config.GetConfig().NbaiMainnetNode.ChainID)), nil)
-		if err != nil {
-			logs.GetLogger().Error(err)
-		}
-		if err == nil {
-			childChainTX.ToAddress = tx.To().Hex()
-			childChainTX.FromAddress = txMsg.From().Hex()
-		}
-	}
-	txRecept, err := utils.CheckTx(client, tx)
-	if err != nil {
-		logs.GetLogger().Error(err)
-	} else {
-		if txRecept.Status == uint64(1) {
-			if childChainTX.FromAddress != "" {
-				childChainTX.Status = constants.HTTP_STATUS_SUCCESS
-				logs.GetLogger().Println("swap success! txHash=" + tx.Hash().Hex())
-			} else {
-				logs.GetLogger().Println("swap failed! txHash=" + tx.Hash().Hex())
-			}
-			childChainTX.GasFeeUsed = strconv.FormatUint(txRecept.GasUsed, 10)
-		}
-	}
 	quantity := new(big.Int)
 	quantity.SetBytes(eventLog.Data)
 	childChainTX.Quantity = quantity.String()
+	feeValue, _ := new(big.Int).SetString(config.GetConfig().BscToNbai.HandlingFee+constants.ZERO_18, 10)
 
-	if len(txRecept.Logs) > 0 {
-		eventLogs := txRecept.Logs
-		childChainTX.BlockNoBsc = eventLogs[0].BlockNumber
+	if quantity.Sub(quantity, feeValue).Sign() > 0 {
+
+		fmt.Println(eventLog.Data)
+		fmt.Println(len(eventLog.Data))
+		zeroArray := utils.AddZeroToTheFrontOfTheArray(quantity.Bytes(), len(eventLog.Data)-len(quantity.Bytes()))
+		eventLog.Data = zeroArray
+		fmt.Println(eventLog.Data)
+		fmt.Println(len(eventLog.Data))
+		var buff bytes.Buffer
+		err = eventLog.EncodeRLP(&buff)
+		if err != nil {
+			logs.GetLogger().Error(err)
+		}
+		fmt.Println(eventLog.Data)
+		tx, err := rootInstance.Exit(callOpts, buff.Bytes())
+		if err != nil {
+			logs.GetLogger().Error(err)
+			childChainTX.TxHashTo = ""
+			childChainTX.Status = constants.TRANSACTION_STATUS_FAIL
+		} else {
+			childChainTX.TxHashTo = tx.Hash().Hex()
+			childChainTX.Status = constants.TRANSACTION_STATUS_SUCCESS
+		}
+
+		if err == nil {
+			txMsg, err := tx.AsMessage(types.NewEIP155Signer(big.NewInt(config.GetConfig().NbaiMainnetNode.ChainID)), nil)
+			if err != nil {
+				logs.GetLogger().Error(err)
+			}
+			if err == nil {
+				childChainTX.ToAddress = tx.To().Hex()
+				childChainTX.FromAddress = txMsg.From().Hex()
+			}
+		}
+		txRecept, err := utils.CheckTx(client, tx)
+		if err != nil {
+			logs.GetLogger().Error(err)
+		} else {
+			if txRecept.Status == uint64(1) {
+				if childChainTX.FromAddress != "" {
+					childChainTX.Status = constants.HTTP_STATUS_SUCCESS
+					logs.GetLogger().Println("swap success! txHash=" + tx.Hash().Hex())
+				} else {
+					logs.GetLogger().Println("swap failed! txHash=" + tx.Hash().Hex())
+				}
+				childChainTX.GasFeeUsed = strconv.FormatUint(txRecept.GasUsed, 10)
+			}
+		}
+		if len(txRecept.Logs) > 0 {
+			eventLogs := txRecept.Logs
+			childChainTX.BlockNo = eventLogs[0].BlockNumber
+		}
+	} else {
+		logs.GetLogger().Println("The balance is less than 100NBAI, no transfer operation has occurred")
+		childChainTX.Status = constants.HTTP_STATUS_SUCCESS
+		childChainTX.ToAddress = constants.WALLET_NIL_VALUE
+		childChainTX.TxHashTo = constants.TX_HASH_NIL_VALUE_FOR_NO_CHARGE
+		childChainTX.FromAddress = constants.WALLET_NIL_VALUE
+		childChainTX.GasFeeUsed = "0"
+		childChainTX.Quantity = "0"
 	}
 
 	if childChainTractionID > 0 {
 		childChainTX.ID = childChainTractionID
 	}
 
+	childChainTX.BlockNoBsc = eventLog.BlockNumber
 	fromNetwork, _ := models.GetNetworkInfoByUUID(constants.NETWORK_INFO_UUID_FOR_BSC)
 	childChainTX.FromNetwork = fromNetwork.ID
 	toNetwork, _ := models.GetNetworkInfoByUUID(constants.NETWORK_INFO_UUID_FOR_NBAI)
 	childChainTX.ToNetwork = toNetwork.ID
 
 	childChainTX.TxHashFrom = eventLog.TxHash.Hex()
-	childChainTX.TxHashTo = tx.Hash().Hex()
 	childChainTX.BlockNo = blockNo
 	currenTime := utils.GetEpochInMillis()
 	childChainTX.CreateAt = strconv.FormatInt(currenTime, 10)

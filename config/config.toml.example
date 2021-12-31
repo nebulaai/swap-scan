@@ -48,27 +48,28 @@ nbai_to_bsc_event_contract_event_function_signature = ""
 scan_step = 2000
 start_from_blockNo = 7043090
 cycle_time_interval = 10 #unit:second
-#for bsc
-nbai_swap_to_bsc_contract_address = ""  # when event log scaned, to call this
+#for nbai
+nbai_swap_to_bsc_contract_address = "0xFdE1bA95e90C394Cd2b08F27dc47977F69c1DB84"  # when event log scaned, to call this
 gas_limit = 800000
 
 
 [bsc_to_nbai]
 #for scan bsc event
-bsc_to_nbai_event_contract_address = "" #for scan event
-bsc_to_nbai_event_contract_event_function_signature = ""
-start_from_blockNo = 12391227
+bsc_to_nbai_event_contract_address = "0xd5dc6B99ABf998050302A6f635176319f911B2BB" #for scan event
+bsc_to_nbai_event_contract_event_function_signature = "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"
+start_from_blockNo = 12763909
 cycle_time_interval = 10 #unit:second
 scan_step = 2000
 #for nbai
-bsc_swap_to_nbai_contract_address = ""  # when event log scaned, to call this
+handling_fee = "100" # uinit:nbai
+bsc_swap_to_nbai_contract_address = "0xF72c727a8Ad004e4fEEeEe73dfA8D63D493373Db"  # when event log scaned, to call this
 
 [nbai_on_eth_to_bsc]
 #for scan nbai event
 nbai_on_eth_to_bsc_event_contract_address = ""  #for scan event
 nbai_on_eth_to_bsc_event_contract_event_function_signature = ""
 scan_step = 2000
-start_from_blockNo = 5555946
+start_from_blockNo = 5572613
 cycle_time_interval = 10 #unit:second
 #for bsc
 handling_fee = "100" # uinit:nbai
